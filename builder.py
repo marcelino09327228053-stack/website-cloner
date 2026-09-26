@@ -30,6 +30,9 @@ def build_site(analysis, project_dir=None, project_name=None):
     first_image = ""
     for item in image_items:
         candidate = str(item.get("src", "")).strip() if isinstance(item, dict) else ""
+        markdown_match = re.match(r"^\[(https?://[^\]]+)\]\(https?://[^)]+\)$", candidate)
+        if markdown_match:
+            candidate = markdown_match.group(1)
         if candidate.startswith(("http://", "https://")):
             first_image = candidate
             break
