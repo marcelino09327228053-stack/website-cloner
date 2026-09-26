@@ -88,7 +88,16 @@ def build_site(analysis, project_dir=None, project_name=None):
     transparent_values = ("transparent", "rgba(0, 0, 0, 0)", "rgba(0,0,0,0)")
     detected_bg = root_bg if root_bg and root_bg not in transparent_values else page_bg
     if not detected_bg or detected_bg in transparent_values:
-        detected_bg = "#0b1017"
+        visible_backgrounds = [
+            str(item.get("background", "")).strip()
+            for item in design.get("elements", [])
+            if str(item.get("background", "")).strip()
+            and str(item.get("background", "")).strip() not in transparent_values
+        ]
+        if visible_backgrounds:
+            detected_bg = max(set(visible_backgrounds), key=visible_backgrounds.count)
+        else:
+            detected_bg = "#0b1017"
     detected_color = design_page.get("color") or "#e8eef7"
     rgb_match = re.search(r"rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)", detected_bg)
     if rgb_match:
