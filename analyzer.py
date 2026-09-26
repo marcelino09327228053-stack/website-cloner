@@ -34,6 +34,9 @@ def infer_section(tag):
         if any(k in marker or k in heading_text or k in visible_text for k in keywords): return name
     return "generic"
 def element_identity(item):
+    dom_path = str(item.get("domPath", "")).strip()
+    if dom_path:
+        return "path:" + dom_path
     if item.get("id"):
         return "id:" + str(item.get("id"))
     text = re.sub(r"\s+", " ", str(item.get("text", "")).strip().casefold())[:80]
