@@ -3,6 +3,7 @@ from datetime import datetime
 import re
 import html
 import json
+from blueprint_sections import normalize_sections, render_sections, section_styles, readable_foreground
 BASE = Path(__file__).resolve().parent
 GENERATED = BASE / "generated"
 
@@ -27,6 +28,8 @@ def build_site(analysis, project_dir=None, project_name=None):
     buttons = structure.get("buttons", [])
     interactions = bp.get("interactions", [])
     responsive_behavior = bp.get("responsive_behavior", {})
+    section_plan = bp.get("sections") or normalize_sections(analysis.get("viewport_snapshots", {}), structure)
+    section_css = ''
     navigation_mapping = responsive_behavior.get("navigation_mapping")
     navigation_breakpoint = 800
     if navigation_mapping:
@@ -101,6 +104,9 @@ def build_site(analysis, project_dir=None, project_name=None):
         else:
             blocks.append(f'<section id="{section_id}" class="content"><div class="wrap"><span class="eyebrow">{e(label)}</span><h2>{e(detected_title)}</h2><p>Rebuild this section with original client content, assets, and business logic.</p></div></section>')
 
+    if section_plan:
+        blocks, section_css = render_sections(section_plan)
+
     if "carousel_or_slideshow" in interactions:
         blocks.append('<section id="interaction-slideshow" class="content interaction-block"><div class="wrap"><span class="eyebrow">Slideshow</span><h2>Featured Content</h2><div class="generated-slider"><article class="slide active">Featured item 1</article><article class="slide">Featured item 2</article><article class="slide">Featured item 3</article></div><div class="slider-controls"><button type="button" data-slide="prev">Previous</button><button type="button" data-slide="next">Next</button></div></div></section>')
     if "accordion_or_faq" in interactions:
@@ -125,6 +131,10 @@ def build_site(analysis, project_dir=None, project_name=None):
     if not nav_labels:
         nav_labels=["Home","Explore","About","Contact"]
     section_ids=[f"sec-{i:06d}" for i in range(len(sections))]
+    if section_plan:
+        section_ids = [f'section-{i+1}' for i in range(len(section_plan))]
+        if not navigation_mapping:
+            nav_labels = [item.get('title', 'Overview') for item in section_plan[:6]]
     nav_links="".join('<a href="#{}">{}</a>'.format(section_ids[i % len(section_ids)] if section_ids else "top", e(text)) for i,text in enumerate(nav_labels))
     brand=e(site.get("title") or site.get("domain") or "Generated Website")
     detected_font = design_page.get("fontFamily") or "Inter, Segoe UI, system-ui, sans-serif"
@@ -275,6 +285,13 @@ document.addEventListener('keydown',event=>{
 });
 '''
     js += f"matchMedia('(max-width:{navigation_breakpoint}px)').addEventListener('change',closeNavigation);"
+    if section_plan:
+        detected_color = readable_foreground(detected_bg, detected_color)
+        detected_wrap_width = max(960, min(1280, max(s.get('max_width', 1100) for s in section_plan)))
+        css += section_styles(detected_bg, detected_color, surface_color, border_color,
+                              muted_color, detected_wrap_width, radius_css, detected_section_space) + section_css
+        display_brand = e(project_name or 'Your Website')
+        html = '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+display_brand+'</title><link rel="stylesheet" href="style.css"></head><body><nav class="topbar"><div class="wrap nav-inner"><div class="brand-wrap"><strong class="brand">'+display_brand+'</strong></div><button type="button" class="navigation-toggle" aria-label="Toggle navigation" aria-controls="generated-navigation" aria-expanded="false">Menu</button><div class="nav-links" id="generated-navigation">'+nav_links+'</div></div></nav>'+''.join(blocks)+'<footer><div class="wrap"><strong>'+display_brand+'</strong><a href="#section-1">Back to top ↑</a></div></footer><script src="app.js"></script></body></html>'
     (project / "index.html").write_text(html, encoding="utf-8")
     (project / "style.css").write_text(css, encoding="utf-8")
     (project / "app.js").write_text(js, encoding="utf-8")

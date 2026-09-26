@@ -111,10 +111,34 @@ async def render_page(url, viewport=None):
       links:(e.matches('nav,[role="navigation"]') ? Array.from(e.querySelectorAll('a[href]')).slice(0,6).map(a => ({text:(a.textContent || '').trim().slice(0,140)})) : []),
       visible:e.checkVisibility({checkOpacity:true,checkVisibilityCSS:true,contentVisibilityAuto:true}),
     }));
+    const regionCandidates=Array.from(document.querySelectorAll('section,article,main,div'))
+      .filter(e => {
+        const r=e.getBoundingClientRect();
+        if(r.width<window.innerWidth*.3 || r.height<100 || !e.querySelector('h1,h2,h3')) return false;
+        const children=Array.from(e.children).filter(c=>c.getBoundingClientRect().width>40);
+        const row=children.some((a,i)=>children.slice(i+1).some(b=>Math.abs(a.getBoundingClientRect().y-b.getBoundingClientRect().y)<24 && Math.abs(a.getBoundingClientRect().x-b.getBoundingClientRect().x)>80));
+        const contentGroups=children.filter(c=>c.querySelector('h1,h2,h3,img,video,canvas,svg') || c.matches('img,video,canvas,svg'));
+        return e.matches('section,article') || row || contentGroups.length>=2;
+      });
+    // Prefer distinct leaf regions over a wrapper containing the entire page.
+    const regions=regionCandidates.filter(e=>!regionCandidates.some(other=>other!==e && e.contains(other)))
+      .slice(0,20).map(e=>{
+        const r=e.getBoundingClientRect(),s=getComputedStyle(e);
+        return {domPath:pathOf(e),tag:e.tagName.toLowerCase(),x:Math.round(r.x),y:Math.round(r.y),
+          width:Math.round(r.width),height:Math.round(r.height),gap:s.gap,
+          heading:(e.querySelector('h1,h2,h3')?.textContent || '').trim().slice(0,140),
+          headingLevel:e.querySelector('h1,h2,h3')?.tagName.toLowerCase(),
+          children:Array.from(e.children).filter(c=>c.getBoundingClientRect().width>40).slice(0,8).map(c=>{
+            const b=c.getBoundingClientRect();
+            return {domPath:pathOf(c),x:Math.round(b.x),y:Math.round(b.y),width:Math.round(b.width),height:Math.round(b.height),
+              heading:(c.matches('h1,h2,h3')?c.textContent:c.querySelector('h1,h2,h3')?.textContent || '').trim().slice(0,140),
+              media:c.matches('img,video,canvas,svg') || !!c.querySelector('img,video,canvas,svg')};
+          })};
+      });
     const sample=Array.from(document.querySelectorAll('header,nav,main,section,article,footer,div,button,a,h1,h2,h3'))
       .slice(0,120)
       .map(e => { const s=getComputedStyle(e),r=e.getBoundingClientRect(),p=e.parentElement; return {tag:e.tagName.toLowerCase(),id:e.id || '',className:typeof e.className === 'string' ? e.className.slice(0,180) : '',text:(e.innerText || '').trim().replace(/\\s+/g,' ').slice(0,140),parentTag:p ? p.tagName.toLowerCase() : '',parentId:p ? (p.id || '') : '',parentClassName:p && typeof p.className === 'string' ? p.className.slice(0,180) : '',domPath:pathOf(e),parentDomPath:pathOf(p),siblingIndex:p ? Array.prototype.indexOf.call(p.children,e) : -1,visible:!!(e.getClientRects().length && s.display!=="none" && s.visibility!=="hidden" && parseFloat(s.opacity || "1")>0),background:s.backgroundColor,backgroundImage:s.backgroundImage,color:s.color,fontSize:s.fontSize,fontWeight:s.fontWeight,borderRadius:s.borderRadius,border:s.border,boxShadow:s.boxShadow,display:s.display,position:s.position,margin:s.margin,padding:s.padding,gap:s.gap,flexDirection:s.flexDirection,justifyContent:s.justifyContent,alignItems:s.alignItems,gridTemplateColumns:s.gridTemplateColumns,objectFit:s.objectFit,opacity:s.opacity,width:Math.round(r.width),height:Math.round(r.height),x:Math.round(r.x),y:Math.round(r.y)}; });
-    return {viewport:{width:window.innerWidth,height:window.innerHeight},page:{Background:body.backgroundColor,color:body.color,fontFamily:body.fontFamily,fontSize:body.fontSize},root:{background:root.backgroundColor},elements:sample,visibilityElements,visibilitySampleTruncated:visibilityCandidates.length>2000};
+    return {viewport:{width:window.innerWidth,height:window.innerHeight},page:{Background:body.backgroundColor,color:body.color,fontFamily:body.fontFamily,fontSize:body.fontSize},root:{background:root.backgroundColor},elements:sample,regions,visibilityElements,visibilitySampleTruncated:visibilityCandidates.length>2000};
   })()
 })
 """)
