@@ -27,6 +27,8 @@ def build_site(analysis, project_dir=None, project_name=None):
     buttons = structure.get("buttons", [])
     interactions = bp.get("interactions", [])
     responsive_behavior = bp.get("responsive_behavior", {})
+    row_to_column_groups = responsive_behavior.get("row_to_column_groups", [])
+    has_row_to_column = bool(row_to_column_groups)
     image_items = resources.get("images", [])
     first_image = ""
     for item in image_items:
