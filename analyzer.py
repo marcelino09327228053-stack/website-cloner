@@ -78,6 +78,7 @@ def infer_responsive_behavior(viewport_snapshots):
         "wrapped_elements": [],
         "stacking_signals": [],
         "row_to_column_groups": [],
+        "visibility_changes": [],
     }
     desktop = viewport_snapshots.get("desktop", {}).get("design", {})
     tablet = viewport_snapshots.get("tablet", {}).get("design", {})
