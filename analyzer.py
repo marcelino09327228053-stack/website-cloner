@@ -160,6 +160,7 @@ async def analyze_url(url: str):
         "site":{"title":title,"description":description,"domain":urlparse(final_url).netloc},
         "blueprint":{"section_order":section_order,"interactions":interactions,"technologies":detect_technologies(soup),"rebuild_plan":rebuild_plan,"rendered_browser":rendered},
         "design": snapshot.get("design",{}) if snapshot else {},
+        "viewport_snapshots": viewport_snapshots,
         "structure":{"headings":headings[:80],"sections":sections[:80],"forms":forms[:20],"buttons":buttons[:50]},
         "navigation":nav[:120],
         "resources":{"images":images[:120],"scripts":scripts[:80],"stylesheets":styles[:80]},
