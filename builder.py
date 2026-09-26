@@ -83,8 +83,11 @@ def build_site(analysis, project_dir=None, project_name=None):
     nav_links="".join('<a href="#{}">{}</a>'.format(section_ids[i % len(section_ids)] if section_ids else "top", e(text)) for i,text in enumerate(nav_labels))
     brand=e(site.get("title") or site.get("domain") or "Generated Website")
     detected_font = design_page.get("fontFamily") or "Inter, Segoe UI, system-ui, sans-serif"
-    detected_bg = design_root.get("background") or design_page.get("background") or design_page.get("Background") or "#0b1017"
-    if detected_bg in ("transparent", "rgba(0, 0, 0, 0)", "rgba(0,0,0,0)"):
+    root_bg = design_root.get("background")
+    page_bg = design_page.get("background") or design_page.get("Background")
+    transparent_values = ("transparent", "rgba(0, 0, 0, 0)", "rgba(0,0,0,0)")
+    detected_bg = root_bg if root_bg and root_bg not in transparent_values else page_bg
+    if not detected_bg or detected_bg in transparent_values:
         detected_bg = "#0b1017"
     detected_color = design_page.get("color") or "#e8eef7"
     rgb_match = re.search(r"rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)", detected_bg)
