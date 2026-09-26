@@ -196,6 +196,8 @@ def infer_responsive_behavior(viewport_snapshots):
                 if same_row_desktop and horizontal_desktop and same_column_mobile and vertical_mobile:
                     breakpoint_stage = "mobile"
                     breakpoint_width = int(mobile.get("viewport", {}).get("width") or 390)
+                    breakpoint_lower_bound = breakpoint_width
+                    breakpoint_upper_bound = int(tablet.get("viewport", {}).get("width") or 768)
                     t_items = tablet_groups.get(parent_key, [])
                     t_by_index = {item.get("siblingIndex"): item for item in t_items}
                     ta = t_by_index.get(shared_indexes[i])
