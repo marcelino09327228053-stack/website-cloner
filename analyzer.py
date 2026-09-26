@@ -5,6 +5,7 @@ import ipaddress
 import httpx
 from bs4 import BeautifulSoup
 from renderer import render_page, render_multi_viewport
+from navigation import infer_navigation_mapping
 
 HEADERS={"User-Agent":"Mozilla/5.0 VibeCoder Website Reference Analyzer/0.2"}
 
@@ -281,6 +282,7 @@ def infer_responsive_behavior(viewport_snapshots):
     result["stacking_signals"] = result["stacking_signals"][:30]
     result["row_to_column_groups"] = result["row_to_column_groups"][:30]
     result["visibility_changes"] = result["visibility_changes"][:30]
+    result["navigation_mapping"] = infer_navigation_mapping(desktop, result)
     return result
 
 

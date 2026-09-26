@@ -27,6 +27,12 @@ def build_site(analysis, project_dir=None, project_name=None):
     buttons = structure.get("buttons", [])
     interactions = bp.get("interactions", [])
     responsive_behavior = bp.get("responsive_behavior", {})
+    navigation_mapping = responsive_behavior.get("navigation_mapping")
+    navigation_breakpoint = 800
+    if navigation_mapping:
+        navigation_breakpoint = int((navigation_mapping["breakpoint_lower_bound"]
+                                     + navigation_mapping["breakpoint_upper_bound"]) / 2)
+        navigation = navigation_mapping.get("links") or navigation
     row_to_column_groups = responsive_behavior.get("row_to_column_groups", [])
     has_row_to_column = bool(row_to_column_groups)
     breakpoint_ranges = [
@@ -208,7 +214,7 @@ def build_site(analysis, project_dir=None, project_name=None):
     detected_heading_size = max(36, min(detected_heading_size, 86))
     detected_button_size = button_fonts[len(button_fonts)//2] if button_fonts else 14
     detected_button_size = max(12, min(detected_button_size, 20))
-    html = '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+brand+'</title><link rel="stylesheet" href="style.css"></head><body><nav class="topbar"><div class="wrap nav-inner"><div class="brand-wrap"><span class="brand-mark">&#9654;</span><strong class="brand">'+brand+'</strong></div><div class="search-shell"><input type="search" placeholder="Search"><button type="button">&#128269;</button></div><div class="nav-links">'+nav_links+'</div></div></nav>' + ''.join(blocks) + '<script src="app.js"></script></body></html>'
+    html = '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+brand+'</title><link rel="stylesheet" href="style.css"></head><body><nav class="topbar"><div class="wrap nav-inner"><div class="brand-wrap"><span class="brand-mark">&#9654;</span><strong class="brand">'+brand+'</strong></div><div class="search-shell"><input type="search" placeholder="Search"><button type="button">&#128269;</button></div><button type="button" class="navigation-toggle" aria-label="Toggle navigation" aria-controls="generated-navigation" aria-expanded="false">Menu</button><div class="nav-links" id="generated-navigation">'+nav_links+'</div></div></nav>' + ''.join(blocks) + '<script src="app.js"></script></body></html>'
     css = '*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;font-family:Inter,Segoe UI,system-ui,sans-serif;background:#0b1017;color:#e8eef7}a{color:inherit;text-decoration:none}.wrap{max-width:1180px;margin:auto;padding:0 24px}.topbar{position:sticky;top:0;z-index:20;background:rgba(11,16,23,.92);backdrop-filter:blur(14px);border-bottom:1px solid #202a36}.nav-inner{min-height:68px;display:flex;align-items:center;justify-content:space-between;gap:24px}.brand{font-size:18px;max-width:420px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.nav-links{display:flex;gap:18px;flex-wrap:wrap}.nav-links a{font-size:14px;opacity:.82}.nav-links a:hover{opacity:1}.hero{min-height:620px;display:flex;align-items:center;background:radial-gradient(circle at 80% 20%,#174b6e 0,#0b1017 46%)}.hero h1{font-size:clamp(44px,7vw,86px);line-height:.98;margin:16px 0 24px}.hero p{font-size:19px;line-height:1.7;color:#bcc8d5;max-width:760px}.eyebrow{text-transform:uppercase;letter-spacing:.14em;font-size:12px;font-weight:700;color:#7cd6ff}.cta{margin-top:24px;border:0;border-radius:12px;padding:14px 20px;font-weight:700;cursor:pointer}.content{padding:88px 0;border-bottom:1px solid #1d2732}.content h2{font-size:clamp(34px,5vw,54px)}.content p{max-width:760px;color:#aebdcc;line-height:1.7}.card-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:34px}.card{min-height:190px;padding:24px;border:1px solid #243242;border-radius:18px;background:#121a24;display:flex;align-items:flex-end;font-weight:700}footer{padding:52px 0;background:#070c11}@media(max-width:800px){.nav-links{display:none}.hero{min-height:auto;padding:96px 0}.card-grid{grid-template-columns:1fr}.content{padding:68px 0}}'
     css = css.replace("font-family:Inter,Segoe UI,system-ui,sans-serif;background:#0b1017;color:#e8eef7", f"font-family:{detected_font};background:{detected_bg};color:{detected_color}")
     css = css.replace("border-radius:12px", f"border-radius:{radius_css}")
@@ -237,6 +243,38 @@ def build_site(analysis, project_dir=None, project_name=None):
         css += f"@media(max-width:{inferred_breakpoint}px){{.hero-grid,.showcase-main,.media-section .card-grid{{grid-template-columns:1fr}}}}"
     js = 'document.querySelectorAll(".cta").forEach(b=>b.addEventListener("click",()=>{if(b.closest("form"))return;const t=document.querySelector(".content");if(t)t.scrollIntoView({behavior:"smooth"})}));document.querySelectorAll("[data-slide]").forEach(b=>b.addEventListener("click",()=>{const slides=[...document.querySelectorAll(".slide")];if(!slides.length)return;let i=slides.findIndex(s=>s.classList.contains("active"));slides[i].classList.remove("active");i=b.dataset.slide==="next"?(i+1)%slides.length:(i-1+slides.length)%slides.length;slides[i].classList.add("active")}));document.querySelectorAll(".accordion-trigger").forEach(b=>b.addEventListener("click",()=>{const p=b.nextElementSibling;if(p)p.classList.toggle("open")}));document.querySelectorAll(".generated-form").forEach(f=>f.addEventListener("submit",e=>{e.preventDefault();const s=f.querySelector(".form-status");if(s)s.textContent="Demo form ready. Connect this to the client backend."}));console.log("Generated website ready");document.querySelectorAll(".dropdown-trigger").forEach(b=>b.addEventListener("click",()=>{const m=b.nextElementSibling;if(!m)return;const o=m.classList.toggle("open");b.setAttribute("aria-expanded",String(o))}));document.querySelectorAll(".modal-open").forEach(b=>b.addEventListener("click",()=>{const m=document.querySelector(".generated-modal");if(m){m.classList.add("open");m.setAttribute("aria-hidden","false")}}));document.querySelectorAll(".modal-close").forEach(b=>b.addEventListener("click",()=>{const m=b.closest(".generated-modal");if(m){m.classList.remove("open");m.setAttribute("aria-hidden","true")}}));document.querySelectorAll(".generated-modal").forEach(m=>m.addEventListener("click",e=>{if(e.target===m){m.classList.remove("open");m.setAttribute("aria-hidden","true")}}));'
 
+    # Keep a usable menu at every width, including the fallback without a mapping.
+    css += (
+        '.topbar .nav-links{display:flex}.navigation-toggle{display:none;'
+        'font:inherit;color:inherit;background:transparent;border:1px solid currentColor;'
+        'border-radius:8px;padding:10px 14px;cursor:pointer}'
+        f'@media(max-width:{navigation_breakpoint}px){{'
+        '.topbar .nav-inner{flex-wrap:wrap}.topbar .search-shell{display:none}'
+        '.topbar .nav-links{display:none;width:100%;padding-bottom:16px}'
+        '.navigation-toggle{display:block;margin-left:auto}'
+        '.topbar .nav-links.navigation-open{display:flex;flex-direction:column}}'
+    )
+    js += '''
+const navigationToggle=document.querySelector('.navigation-toggle');
+const navigationLinks=document.getElementById('generated-navigation');
+function closeNavigation(){
+  navigationLinks.classList.remove('navigation-open');
+  navigationToggle.setAttribute('aria-expanded','false');
+}
+navigationToggle.addEventListener('click',()=>{
+  const open=navigationLinks.classList.toggle('navigation-open');
+  navigationToggle.setAttribute('aria-expanded',String(open));
+});
+navigationLinks.addEventListener('click',event=>{
+  if(event.target.closest('a')) closeNavigation();
+});
+document.addEventListener('keydown',event=>{
+  if(event.key==='Escape' && navigationToggle.getAttribute('aria-expanded')==='true'){
+    closeNavigation();navigationToggle.focus();
+  }
+});
+'''
+    js += f"matchMedia('(max-width:{navigation_breakpoint}px)').addEventListener('change',closeNavigation);"
     (project / "index.html").write_text(html, encoding="utf-8")
     (project / "style.css").write_text(css, encoding="utf-8")
     (project / "app.js").write_text(js, encoding="utf-8")

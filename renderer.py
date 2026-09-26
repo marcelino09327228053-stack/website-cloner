@@ -105,6 +105,10 @@ async def render_page(url, viewport=None):
     const visibilityElements=visibilityCandidates.slice(0,2000).map(e => ({
       domPath:pathOf(e),
       tag:e.tagName.toLowerCase(),
+      id:e.id || '',
+      role:e.getAttribute('role') || '',
+      controls:e.getAttribute('aria-controls') || '',
+      links:(e.matches('nav,[role="navigation"]') ? Array.from(e.querySelectorAll('a[href]')).slice(0,6).map(a => ({text:(a.textContent || '').trim().slice(0,140)})) : []),
       visible:e.checkVisibility({checkOpacity:true,checkVisibilityCSS:true,contentVisibilityAuto:true}),
     }));
     const sample=Array.from(document.querySelectorAll('header,nav,main,section,article,footer,div,button,a,h1,h2,h3'))
