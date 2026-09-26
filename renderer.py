@@ -85,9 +85,23 @@ async def render_page(url, viewport=None):
   design: (() => {
     const body=getComputedStyle(document.body);
     const root=getComputedStyle(document.documentElement);
+    const pathOf=e => {
+      if(!e) return '';
+      const parts=[];
+      let n=e;
+      while(n && n.nodeType===1 && parts.length<10){
+        const tag=n.tagName.toLowerCase();
+        if(n.id){ parts.unshift(tag+'#'+n.id); break; }
+        const p=n.parentElement;
+        const index=p ? Array.prototype.indexOf.call(p.children,n)+1 : 1;
+        parts.unshift(tag+':nth-child('+index+')');
+        n=p;
+      }
+      return parts.join('>');
+    };
     const sample=Array.from(document.querySelectorAll('header,nav,main,section,article,footer,div,button,a,h1,h2,h3'))
       .filter(e => e.getClientRects().length).slice(0,120)
-      .map(e => { const s=getComputedStyle(e),r=e.getBoundingClientRect(),p=e.parentElement; return {tag:e.tagName.toLowerCase(),id:e.id || '',className:typeof e.className === 'string' ? e.className.slice(0,180) : '',text:(e.innerText || '').trim().replace(/\\s+/g,' ').slice(0,140),parentTag:p ? p.tagName.toLowerCase() : '',parentId:p ? (p.id || '') : '',parentClassName:p && typeof p.className === 'string' ? p.className.slice(0,180) : '',siblingIndex:p ? Array.prototype.indexOf.call(p.children,e) : -1,background:s.backgroundColor,backgroundImage:s.backgroundImage,color:s.color,fontSize:s.fontSize,fontWeight:s.fontWeight,borderRadius:s.borderRadius,border:s.border,boxShadow:s.boxShadow,display:s.display,position:s.position,margin:s.margin,padding:s.padding,gap:s.gap,flexDirection:s.flexDirection,justifyContent:s.justifyContent,alignItems:s.alignItems,gridTemplateColumns:s.gridTemplateColumns,objectFit:s.objectFit,opacity:s.opacity,width:Math.round(r.width),height:Math.round(r.height),x:Math.round(r.x),y:Math.round(r.y)}; });
+      .map(e => { const s=getComputedStyle(e),r=e.getBoundingClientRect(),p=e.parentElement; return {tag:e.tagName.toLowerCase(),id:e.id || '',className:typeof e.className === 'string' ? e.className.slice(0,180) : '',text:(e.innerText || '').trim().replace(/\\s+/g,' ').slice(0,140),parentTag:p ? p.tagName.toLowerCase() : '',parentId:p ? (p.id || '') : '',parentClassName:p && typeof p.className === 'string' ? p.className.slice(0,180) : '',domPath:pathOf(e),parentDomPath:pathOf(p),siblingIndex:p ? Array.prototype.indexOf.call(p.children,e) : -1,background:s.backgroundColor,backgroundImage:s.backgroundImage,color:s.color,fontSize:s.fontSize,fontWeight:s.fontWeight,borderRadius:s.borderRadius,border:s.border,boxShadow:s.boxShadow,display:s.display,position:s.position,margin:s.margin,padding:s.padding,gap:s.gap,flexDirection:s.flexDirection,justifyContent:s.justifyContent,alignItems:s.alignItems,gridTemplateColumns:s.gridTemplateColumns,objectFit:s.objectFit,opacity:s.opacity,width:Math.round(r.width),height:Math.round(r.height),x:Math.round(r.x),y:Math.round(r.y)}; });
     return {viewport:{width:window.innerWidth,height:window.innerHeight},page:{Background:body.backgroundColor,color:body.color,fontFamily:body.fontFamily,fontSize:body.fontSize},root:{background:root.backgroundColor},elements:sample};
   })()
 })
