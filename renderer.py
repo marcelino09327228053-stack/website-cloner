@@ -19,13 +19,14 @@ def public_host(url):
     return True
 
 
-async def render_page(url):
+async def render_page(url, viewport=None):
     if not public_host(url):
         raise ValueError("Only public website URLs are allowed")
+    viewport = viewport or {"width":1440,"height":1000}
     async with async_playwright() as pw:
         browser=await pw.chromium.launch(headless=True)
         context=await browser.new_context(
-            viewport={"width":1440,"height":1000},
+            viewport=viewport,
             user_agent="Mozilla/5.0 Website Reference Analyzer/0.4",
         )
         page=await context.new_page()
