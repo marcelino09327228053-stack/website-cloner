@@ -211,6 +211,7 @@ def infer_responsive_behavior(viewport_snapshots):
                         "parent": parent_key,
                         "siblings": [shared_indexes[i], shared_indexes[j]],
                         "breakpoint_stage": breakpoint_stage,
+                        "breakpoint_width": breakpoint_width,
                         "desktop": {
                             "a": {"x": a.get("x"), "y": a.get("y")},
                             "b": {"x": b.get("x"), "y": b.get("y")},
