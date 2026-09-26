@@ -194,9 +194,21 @@ def infer_responsive_behavior(viewport_snapshots):
                 vertical_mobile = abs(ma.get("y", 0) - mb.get("y", 0)) >= 60
 
                 if same_row_desktop and horizontal_desktop and same_column_mobile and vertical_mobile:
+                    breakpoint_stage = "mobile"
+                    t_items = tablet_groups.get(parent_key, [])
+                    t_by_index = {item.get("siblingIndex"): item for item in t_items}
+                    ta = t_by_index.get(shared_indexes[i])
+                    tb = t_by_index.get(shared_indexes[j])
+                    if ta and tb:
+                        same_column_tablet = abs(ta.get("x", 0) - tb.get("x", 0)) <= 40
+                        vertical_tablet = abs(ta.get("y", 0) - tb.get("y", 0)) >= 60
+                        if same_column_tablet and vertical_tablet:
+                            breakpoint_stage = "tablet"
+
                     result["row_to_column_groups"].append({
                         "parent": parent_key,
                         "siblings": [shared_indexes[i], shared_indexes[j]],
+                        "breakpoint_stage": breakpoint_stage,
                         "desktop": {
                             "a": {"x": a.get("x"), "y": a.get("y")},
                             "b": {"x": b.get("x"), "y": b.get("y")},
