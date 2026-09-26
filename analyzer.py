@@ -139,8 +139,55 @@ def infer_responsive_behavior(viewport_snapshots):
                 "mobile_width_ratio": round(mobile_ratio, 2),
             })
 
+    desktop_groups = group_elements_by_parent(desktop_elements)
+    mobile_groups = group_elements_by_parent(mobile_elements)
+
+    for parent_key in set(desktop_groups) & set(mobile_groups):
+        d_items = desktop_groups[parent_key]
+        m_items = mobile_groups[parent_key]
+        if len(d_items) < 2 or len(m_items) < 2:
+            continue
+
+        d_by_index = {item.get("siblingIndex"): item for item in d_items}
+        m_by_index = {item.get("siblingIndex"): item for item in m_items}
+        shared_indexes = [i for i in d_by_index if i in m_by_index]
+        if len(shared_indexes) < 2:
+            continue
+
+        detected = False
+        for i in range(len(shared_indexes)):
+            for j in range(i + 1, len(shared_indexes)):
+                a = d_by_index[shared_indexes[i]]
+                b = d_by_index[shared_indexes[j]]
+                ma = m_by_index[shared_indexes[i]]
+                mb = m_by_index[shared_indexes[j]]
+
+                same_row_desktop = abs(a.get("y", 0) - b.get("y", 0)) <= 24
+                horizontal_desktop = abs(a.get("x", 0) - b.get("x", 0)) >= 80
+                same_column_mobile = abs(ma.get("x", 0) - mb.get("x", 0)) <= 40
+                vertical_mobile = abs(ma.get("y", 0) - mb.get("y", 0)) >= 60
+
+                if same_row_desktop and horizontal_desktop and same_column_mobile and vertical_mobile:
+                    result["row_to_column_groups"].append({
+                        "parent": parent_key,
+                        "siblings": [shared_indexes[i], shared_indexes[j]],
+                        "desktop": {
+                            "a": {"x": a.get("x"), "y": a.get("y")},
+                            "b": {"x": b.get("x"), "y": b.get("y")},
+                        },
+                        "mobile": {
+                            "a": {"x": ma.get("x"), "y": ma.get("y")},
+                            "b": {"x": mb.get("x"), "y": mb.get("y")},
+                        },
+                    })
+                    detected = True
+                    break
+            if detected:
+                break
+
     result["wrapped_elements"] = result["wrapped_elements"][:30]
     result["stacking_signals"] = result["stacking_signals"][:30]
+    result["row_to_column_groups"] = result["row_to_column_groups"][:30]
     return result
 
 
