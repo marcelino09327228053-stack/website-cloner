@@ -165,6 +165,7 @@ def infer_responsive_behavior(viewport_snapshots):
             })
 
     desktop_groups = group_elements_by_parent(desktop_elements)
+    tablet_groups = group_elements_by_parent(tablet_elements)
     mobile_groups = group_elements_by_parent(mobile_elements)
 
     for parent_key in set(desktop_groups) & set(mobile_groups):
