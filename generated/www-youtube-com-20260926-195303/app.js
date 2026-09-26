@@ -1,1 +1,0 @@
-console.log("Generated website ready");

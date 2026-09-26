@@ -1,1 +1,0 @@
-document.querySelectorAll(".cta").forEach(b=>b.addEventListener("click",()=>{const t=document.querySelector(".content");if(t)t.scrollIntoView({behavior:"smooth"})}));console.log("Generated website ready");
