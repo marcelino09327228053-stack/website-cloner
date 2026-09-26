@@ -53,11 +53,13 @@ def element_identity(item):
 def group_elements_by_parent(elements):
     groups = {}
     for item in elements:
-        parent_key = "|".join([
-            str(item.get("parentTag", "")).casefold(),
-            str(item.get("parentId", "")).casefold(),
-            re.sub(r"\s+", " ", str(item.get("parentClassName", "")).strip().casefold()),
-        ])
+        parent_key = str(item.get("parentDomPath", "")).strip()
+        if not parent_key:
+            parent_key = "|".join([
+                str(item.get("parentTag", "")).casefold(),
+                str(item.get("parentId", "")).casefold(),
+                re.sub(r"\s+", " ", str(item.get("parentClassName", "")).strip().casefold()),
+            ])
         if not parent_key.strip("|"):
             continue
         groups.setdefault(parent_key, []).append(item)
