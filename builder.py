@@ -29,12 +29,26 @@ def build_site(analysis, project_dir=None, project_name=None):
     responsive_behavior = bp.get("responsive_behavior", {})
     row_to_column_groups = responsive_behavior.get("row_to_column_groups", [])
     has_row_to_column = bool(row_to_column_groups)
-    breakpoint_widths = [
-        int(item.get("breakpoint_width"))
+    breakpoint_ranges = [
+        (
+            int(item.get("breakpoint_lower_bound")),
+            int(item.get("breakpoint_upper_bound")),
+        )
         for item in row_to_column_groups
-        if item.get("breakpoint_width")
+        if item.get("breakpoint_lower_bound") and item.get("breakpoint_upper_bound")
     ]
-    inferred_breakpoint = max(breakpoint_widths) if breakpoint_widths else 700
+    if breakpoint_ranges:
+        inferred_breakpoint = max(
+            int((lower + upper) / 2)
+            for lower, upper in breakpoint_ranges
+        )
+    else:
+        breakpoint_widths = [
+            int(item.get("breakpoint_width"))
+            for item in row_to_column_groups
+            if item.get("breakpoint_width")
+        ]
+        inferred_breakpoint = max(breakpoint_widths) if breakpoint_widths else 700
     image_items = resources.get("images", [])
     first_image = ""
     for item in image_items:
