@@ -135,9 +135,19 @@ def infer_responsive_behavior(viewport_snapshots):
         desktop_ratio = d_width / max(desktop.get("viewport", {}).get("width", 1), 1)
         mobile_ratio = m.get("width", 0) / max(mobile.get("viewport", {}).get("width", 1), 1)
         vertical_shift = m_y - d_y
+        parent_path = str(d.get("parentDomPath", "")).strip()
+        d_parent = desktop_path_map.get(parent_path)
+        m_parent = mobile_path_map.get(parent_path)
+
+        if d_parent and m_parent:
+            d_relative_y = d_y - d_parent.get("y", 0)
+            m_relative_y = m_y - m_parent.get("y", 0)
+            relative_vertical_shift = m_relative_y - d_relative_y
+        else:
+            relative_vertical_shift = vertical_shift
 
         if (
-            vertical_shift >= max(80, d_height * 0.75)
+            relative_vertical_shift >= max(80, d_height * 0.75)
             and mobile_ratio >= min(desktop_ratio * 0.8, 0.75)
         ):
             result["stacking_signals"].append({
@@ -148,6 +158,7 @@ def infer_responsive_behavior(viewport_snapshots):
                 "mobile_x": m.get("x"),
                 "mobile_y": m_y,
                 "vertical_shift": vertical_shift,
+                "relative_vertical_shift": relative_vertical_shift,
                 "desktop_width_ratio": round(desktop_ratio, 2),
                 "mobile_width_ratio": round(mobile_ratio, 2),
             })
