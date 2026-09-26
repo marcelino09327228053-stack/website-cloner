@@ -33,6 +33,23 @@ def infer_section(tag):
     for name,keywords in SECTION_HINTS.items():
         if any(k in marker or k in heading_text or k in visible_text for k in keywords): return name
     return "generic"
+def element_identity(item):
+    if item.get("id"):
+        return "id:" + str(item.get("id"))
+    text = re.sub(r"\s+", " ", str(item.get("text", "")).strip().casefold())[:80]
+    class_name = re.sub(r"\s+", " ", str(item.get("className", "")).strip().casefold())
+    parent_id = str(item.get("parentId", "")).strip().casefold()
+    parent_class = re.sub(r"\s+", " ", str(item.get("parentClassName", "")).strip().casefold())
+    return "|".join([
+        str(item.get("tag", "")).casefold(),
+        class_name,
+        text,
+        str(item.get("parentTag", "")).casefold(),
+        parent_id,
+        parent_class,
+    ])
+
+
 def infer_responsive_behavior(viewport_snapshots):
     result = {
         "available": False,
