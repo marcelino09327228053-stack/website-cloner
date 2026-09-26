@@ -111,6 +111,13 @@ def build_site(analysis, project_dir=None, project_name=None):
     detected_radius = max(2, min(detected_radius, 32))
     radius_css = f"{detected_radius:g}px"
     design_elements = design.get("elements", [])
+    background_gradients = [
+        str(item.get("backgroundImage", "")).strip()
+        for item in design_elements
+        if "gradient(" in str(item.get("backgroundImage", "")).lower()
+    ]
+    if background_gradients:
+        hero_bg = background_gradients[0]
     viewport_width = int(design.get("viewport", {}).get("width") or 1440)
     layout_widths = [int(x.get("width") or 0) for x in design_elements if x.get("tag") in ("main", "section", "article") and 320 <= int(x.get("width") or 0) < viewport_width * 0.98]
     if not layout_widths:
