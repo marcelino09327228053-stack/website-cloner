@@ -4,7 +4,7 @@ import socket
 import ipaddress
 import httpx
 from bs4 import BeautifulSoup
-from renderer import render_page
+from renderer import render_page, render_multi_viewport
 
 HEADERS={"User-Agent":"Mozilla/5.0 VibeCoder Website Reference Analyzer/0.2"}
 
