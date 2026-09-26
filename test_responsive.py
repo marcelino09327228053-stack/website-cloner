@@ -18,6 +18,30 @@ def snapshots(states):
 
 
 class VisibilityTests(unittest.TestCase):
+    def test_transition_directions_and_sampled_ranges(self):
+        data = snapshots([{"desktop": True, "mobile": False, "tablet": False},
+                          {"desktop": False, "mobile": False, "tablet": True},
+                          {"desktop": False, "mobile": True, "tablet": False}])
+        changes = {item["path"]: item["transitions"]
+                   for item in infer_responsive_behavior(data)["visibility_changes"]}
+        self.assertEqual(changes["desktop"], [{"from_stage": "desktop",
+            "breakpoint_stage": "tablet", "change": "hidden",
+            "breakpoint_lower_bound": 768, "breakpoint_upper_bound": 1440}])
+        self.assertEqual(changes["mobile"], [{"from_stage": "tablet",
+            "breakpoint_stage": "mobile", "change": "shown",
+            "breakpoint_lower_bound": 390, "breakpoint_upper_bound": 768}])
+        self.assertEqual([t["change"] for t in changes["tablet"]], ["shown", "hidden"])
+        self.assertEqual([t["breakpoint_stage"] for t in changes["tablet"]], ["tablet", "mobile"])
+
+    def test_unknown_states_and_invalid_widths_do_not_invent_ranges(self):
+        data = snapshots([{"a": True}, {}, {"a": False}])
+        self.assertEqual(infer_responsive_behavior(data)["visibility_changes"][0]["transitions"], [])
+        for width in (None, 0, -1, True, "768", 1440, 1500):
+            with self.subTest(width=width):
+                data = snapshots([{"a": True}, {"a": False}, {"a": False}])
+                data["tablet"]["design"]["viewport"] = {"width": width}
+                self.assertEqual(infer_responsive_behavior(data)["visibility_changes"][0]["transitions"], [])
+
     def test_tablet_only_and_missing_samples(self):
         data = snapshots([{"a": True, "missing": True}, {"a": False}, {"a": True}])
         changes = infer_responsive_behavior(data)["visibility_changes"]
@@ -48,6 +72,10 @@ class BrowserTests(unittest.IsolatedAsyncioTestCase):
           #hidden {display:none} #transparent {opacity:0}
           #concealed {visibility:hidden} #override {visibility:visible}
           #offscreen {position:absolute;top:5000px}
+          #mobile-menu,#tablet-controls {display:none}
+          @media(max-width:900px){#desktop-nav{display:none}}
+          @media(max-width:600px){#mobile-menu{display:block}}
+          @media(min-width:601px) and (max-width:900px){#tablet-controls{display:block}}
           @media(max-width:600px){.row{flex-direction:column} #desktop{display:none}}
           @media(min-width:601px) and (max-width:900px){#tablet{display:none}}
         </style><div class="row"><div>A</div><div>B</div></div>
@@ -55,6 +83,8 @@ class BrowserTests(unittest.IsolatedAsyncioTestCase):
         <div id="transparent"><span id="transparent-child">Transparent</span></div>
         <div id="concealed"><span id="override">Visible override</span></div>
         <div id="offscreen">Below fold</div><input id="desktop"><img id="tablet">
+        <nav id="desktop-nav">Desktop navigation</nav>
+        <button id="mobile-menu">Mobile menu</button><button id="tablet-controls">Tablet controls</button>
         ''' + '<div>Filler</div>' * 130 + '<button id="late">Late</button>'
         data = {}
         async with async_playwright() as pw:
@@ -73,7 +103,16 @@ class BrowserTests(unittest.IsolatedAsyncioTestCase):
         for path in ("span#override", "div#offscreen", "button#late"):
             self.assertTrue(values[path], path)
         result = infer_responsive_behavior(data)
-        self.assertEqual({c["path"] for c in result["visibility_changes"]}, {"input#desktop", "img#tablet"})
+        changes = {c["path"]: c for c in result["visibility_changes"]}
+        self.assertEqual(set(changes), {"input#desktop", "img#tablet", "nav#desktop-nav",
+                                       "button#mobile-menu", "button#tablet-controls"})
+        for path, expected in {
+            "nav#desktop-nav": [("hidden", "tablet", 768, 1440)],
+            "button#mobile-menu": [("shown", "mobile", 390, 768)],
+            "button#tablet-controls": [("shown", "tablet", 768, 1440), ("hidden", "mobile", 390, 768)],
+        }.items():
+            self.assertEqual([(t["change"], t["breakpoint_stage"], t["breakpoint_lower_bound"],
+                               t["breakpoint_upper_bound"]) for t in changes[path]["transitions"]], expected)
         legacy = copy.deepcopy(data)
         for snapshot in legacy.values():
             del snapshot["design"]["visibilityElements"]

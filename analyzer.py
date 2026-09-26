@@ -181,6 +181,27 @@ def infer_responsive_behavior(viewport_snapshots):
         states = [item.get("visible") if item is not None else None for item in items]
         known_states = {state for state in states if isinstance(state, bool)}
         if len(known_states) > 1:
+            transitions = []
+            stages = ("desktop", "tablet", "mobile")
+            designs = (desktop, tablet, mobile)
+            for index in (1, 2):
+                before, after = states[index - 1:index + 1]
+                if not isinstance(before, bool) or not isinstance(after, bool) or before == after:
+                    continue
+                upper = designs[index - 1].get("viewport", {}).get("width")
+                lower = designs[index].get("viewport", {}).get("width")
+                # Only infer ranges from measured, descending viewport widths.
+                if (isinstance(lower, bool) or isinstance(upper, bool)
+                        or not isinstance(lower, (int, float))
+                        or not isinstance(upper, (int, float)) or not 0 < lower < upper):
+                    continue
+                transitions.append({
+                    "from_stage": stages[index - 1],
+                    "breakpoint_stage": stages[index],
+                    "change": "shown" if after else "hidden",
+                    "breakpoint_lower_bound": lower,
+                    "breakpoint_upper_bound": upper,
+                })
             result["visibility_changes"].append({
                 "path": path,
                 "desktop_visible": states[0],
@@ -189,6 +210,7 @@ def infer_responsive_behavior(viewport_snapshots):
                 "desktop_present": items[0] is not None,
                 "tablet_present": items[1] is not None,
                 "mobile_present": items[2] is not None,
+                "transitions": transitions,
             })
 
     for parent_key in set(desktop_groups) & set(mobile_groups):
