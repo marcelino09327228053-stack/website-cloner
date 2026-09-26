@@ -169,6 +169,21 @@ def infer_responsive_behavior(viewport_snapshots):
     tablet_groups = group_elements_by_parent(tablet_elements)
     mobile_groups = group_elements_by_parent(mobile_elements)
 
+    all_paths = set(desktop_path_map) | set(mobile_path_map)
+    for path in all_paths:
+        d_item = desktop_path_map.get(path)
+        m_item = mobile_path_map.get(path)
+        d_visible = bool(d_item and d_item.get("visible", True))
+        m_visible = bool(m_item and m_item.get("visible", True))
+        if d_visible != m_visible:
+            result["visibility_changes"].append({
+                "path": path,
+                "desktop_visible": d_visible,
+                "mobile_visible": m_visible,
+                "desktop_present": d_item is not None,
+                "mobile_present": m_item is not None,
+            })
+
     for parent_key in set(desktop_groups) & set(mobile_groups):
         d_items = desktop_groups[parent_key]
         m_items = mobile_groups[parent_key]
