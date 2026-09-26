@@ -35,25 +35,3 @@ applied to generated components.
 
 Run regression tests with
 `.venv\Scripts\python.exe -m unittest -v test_responsive test_navigation`.
-
-## Section-driven builder
-
-The renderer captures up to 20 distinct content regions separately from the
-existing layout sample. Regions include headings, child geometry, and media
-presence. `blueprint.sections` normalizes these into ordered components with
-source paths, measured desktop columns, media/text order, and per-section
-responsive variants. Matching tablet/mobile regions supply midpoint estimates
-for column transitions. A 700px collapse is the fallback when none are observed.
-
-The builder uses these components when available, preserving repeated section
-types, two-column proportions, card counts, and section-specific breakpoints.
-Navigation points to generated section IDs. Existing interaction components and
-the legacy fallback remain available. Original abstract artwork substitutes for
-source media; descriptive copy is authored placeholder text, or an explicit
-`description` supplied in the normalized section. This is a layout reconstruction,
-not a complete reproduction of source content or application logic.
-
-Region capture currently prefers leaf sections; nested wrappers and regions
-without headings may be omitted. Old snapshots fall back to semantic sections
-when available. Run `test_blueprint_sections` alongside the existing tests for
-multi-layout rendering, contrast, overflow, and navigation regression coverage.
