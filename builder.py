@@ -19,6 +19,7 @@ def build_site(analysis, project_dir=None, project_name=None):
     bp = analysis.get("blueprint", {})
     structure = analysis.get("structure", {})
     navigation = analysis.get("navigation", [])
+    resources = analysis.get("resources", {})
     design = analysis.get("design", {})
     design_page = design.get("page", {})
     design_root = design.get("root", {})
