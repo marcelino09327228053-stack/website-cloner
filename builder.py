@@ -120,6 +120,14 @@ def build_site(analysis, project_dir=None, project_name=None):
     y_gaps.sort()
     detected_section_space = y_gaps[len(y_gaps)//2] if y_gaps else 88
     detected_section_space = max(56, min(detected_section_space, 120))
+    gap_values = []
+    for item in design_elements:
+        match = re.search(r"([0-9]+(?:\.[0-9]+)?)px", str(item.get("gap", "")))
+        if match and 4 <= float(match.group(1)) <= 80:
+            gap_values.append(float(match.group(1)))
+    gap_values.sort()
+    detected_gap = gap_values[len(gap_values)//2] if gap_values else 24
+    detected_gap = max(8, min(detected_gap, 48))
     def font_samples(tags):
         values=[]
         for item in design_elements:
