@@ -50,12 +50,18 @@ async def analyze_url(url: str):
         raise ValueError("Invalid URL")
     ensure_public_url(url)
     rendered=False
+    viewport_snapshots={}
     try:
-        page=await render_page(url)
+        viewport_pages=await render_multi_viewport(url)
+        page=viewport_pages["desktop"]
         html=page["html"]
         final_url=page["final_url"]
         status_code=page["status_code"]
         snapshot=page.get("snapshot",{})
+        viewport_snapshots={
+            name: data.get("snapshot",{})
+            for name, data in viewport_pages.items()
+        }
         rendered=True
     except Exception:
         async with httpx.AsyncClient(follow_redirects=True,timeout=20,headers=HEADERS) as client:
