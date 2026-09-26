@@ -26,6 +26,13 @@ def build_site(analysis, project_dir=None, project_name=None):
     headings = structure.get("headings", [])
     buttons = structure.get("buttons", [])
     interactions = bp.get("interactions", [])
+    image_items = resources.get("images", [])
+    first_image = ""
+    for item in image_items:
+        candidate = str(item.get("src", "")).strip() if isinstance(item, dict) else ""
+        if candidate.startswith(("http://", "https://")):
+            first_image = candidate
+            break
     name = safe_name(project_name or site.get("domain") or site.get("title"))
     if project_dir:
         project = Path(project_dir).expanduser().resolve()
