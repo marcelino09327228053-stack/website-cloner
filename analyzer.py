@@ -139,12 +139,12 @@ def infer_responsive_behavior(viewport_snapshots):
         d_parent = desktop_path_map.get(parent_path)
         m_parent = mobile_path_map.get(parent_path)
 
-        if d_parent and m_parent:
-            d_relative_y = d_y - d_parent.get("y", 0)
-            m_relative_y = m_y - m_parent.get("y", 0)
-            relative_vertical_shift = m_relative_y - d_relative_y
-        else:
-            relative_vertical_shift = vertical_shift
+        if not d_parent or not m_parent:
+            continue
+
+        d_relative_y = d_y - d_parent.get("y", 0)
+        m_relative_y = m_y - m_parent.get("y", 0)
+        relative_vertical_shift = m_relative_y - d_relative_y
 
         if (
             relative_vertical_shift >= max(80, d_height * 0.75)
