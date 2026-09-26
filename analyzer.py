@@ -105,6 +105,16 @@ def infer_responsive_behavior(viewport_snapshots):
     desktop_map = {element_identity(item): item for item in desktop_elements}
     tablet_map = {element_identity(item): item for item in tablet_elements}
     mobile_map = {element_identity(item): item for item in mobile_elements}
+    desktop_path_map = {
+        str(item.get("domPath", "")).strip(): item
+        for item in desktop_elements
+        if str(item.get("domPath", "")).strip()
+    }
+    mobile_path_map = {
+        str(item.get("domPath", "")).strip(): item
+        for item in mobile_elements
+        if str(item.get("domPath", "")).strip()
+    }
 
     shared_keys = set(desktop_map) & set(tablet_map) & set(mobile_map)
     for key in shared_keys:
