@@ -97,13 +97,27 @@ def infer_responsive_behavior(viewport_snapshots):
                 "desktop_height": d.get("height"),
                 "mobile_height": m.get("height"),
             })
-        if d.get("width", 0) > 0 and m.get("width", 0) < d.get("width", 0) * 0.6:
+        d_width = max(d.get("width", 0), 1)
+        d_y = d.get("y", 0)
+        m_y = m.get("y", 0)
+        desktop_ratio = d_width / max(desktop.get("viewport", {}).get("width", 1), 1)
+        mobile_ratio = m.get("width", 0) / max(mobile.get("viewport", {}).get("width", 1), 1)
+        vertical_shift = m_y - d_y
+
+        if (
+            vertical_shift >= max(80, d_height * 0.75)
+            and mobile_ratio >= min(desktop_ratio * 0.8, 0.75)
+        ):
             result["stacking_signals"].append({
                 "identity": key,
                 "tag": d.get("tag"),
-                "desktop_width": d.get("width"),
-                "tablet_width": t.get("width"),
-                "mobile_width": m.get("width"),
+                "desktop_x": d.get("x"),
+                "desktop_y": d_y,
+                "mobile_x": m.get("x"),
+                "mobile_y": m_y,
+                "vertical_shift": vertical_shift,
+                "desktop_width_ratio": round(desktop_ratio, 2),
+                "mobile_width_ratio": round(mobile_ratio, 2),
             })
 
     result["wrapped_elements"] = result["wrapped_elements"][:30]
