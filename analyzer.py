@@ -205,6 +205,7 @@ def infer_responsive_behavior(viewport_snapshots):
                         vertical_tablet = abs(ta.get("y", 0) - tb.get("y", 0)) >= 60
                         if same_column_tablet and vertical_tablet:
                             breakpoint_stage = "tablet"
+                            breakpoint_width = int(tablet.get("viewport", {}).get("width") or 768)
 
                     result["row_to_column_groups"].append({
                         "parent": parent_key,
