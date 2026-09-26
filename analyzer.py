@@ -80,22 +80,26 @@ def infer_responsive_behavior(viewport_snapshots):
             "mobile_vs_desktop": round(mobile_height / desktop_height, 2),
         }
 
-    count = min(len(desktop_elements), len(tablet_elements), len(mobile_elements))
-    for index in range(count):
-        d = desktop_elements[index]
-        t = tablet_elements[index]
-        m = mobile_elements[index]
+    desktop_map = {element_identity(item): item for item in desktop_elements}
+    tablet_map = {element_identity(item): item for item in tablet_elements}
+    mobile_map = {element_identity(item): item for item in mobile_elements}
+
+    shared_keys = set(desktop_map) & set(tablet_map) & set(mobile_map)
+    for key in shared_keys:
+        d = desktop_map[key]
+        t = tablet_map[key]
+        m = mobile_map[key]
         d_height = max(d.get("height", 0), 1)
         if m.get("height", 0) >= d_height * 1.5:
             result["wrapped_elements"].append({
-                "index": index,
+                "identity": key,
                 "tag": d.get("tag"),
                 "desktop_height": d.get("height"),
                 "mobile_height": m.get("height"),
             })
         if d.get("width", 0) > 0 and m.get("width", 0) < d.get("width", 0) * 0.6:
             result["stacking_signals"].append({
-                "index": index,
+                "identity": key,
                 "tag": d.get("tag"),
                 "desktop_width": d.get("width"),
                 "tablet_width": t.get("width"),
