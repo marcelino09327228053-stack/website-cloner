@@ -1,0 +1,23 @@
+{
+  "site": {
+    "title": "Ocean Resort",
+    "domain": "ocean.test",
+    "description": "Test resort"
+  },
+  "requested_url": "https://example.com",
+  "final_url": "https://example.com",
+  "blueprint": {
+    "section_order": [
+      "hero",
+      "footer"
+    ]
+  },
+  "structure": {
+    "headings": [],
+    "buttons": [
+      "Book Now"
+    ]
+  },
+  "navigation": [],
+  "design": {}
+}

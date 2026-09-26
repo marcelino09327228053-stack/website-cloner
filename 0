@@ -1,0 +1,6 @@
+REBUILD_PLAN:
+- Create page sections in this order: generic, hero, download, features, footer.
+- Recreate equivalent user interactions with original implementation: dropdown_or_menu.
+- Use original or licensed replacement imagery; reference layout and aspect ratios only.
+- Detected frontend hints: Bootstrap. Use only if suitable for the new project.
+REBUILD_PLAN_VALIDATION_OK
