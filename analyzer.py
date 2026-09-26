@@ -148,7 +148,8 @@ def infer_responsive_behavior(viewport_snapshots):
 
         if (
             relative_vertical_shift >= max(80, d_height * 0.75)
-            and mobile_ratio >= min(desktop_ratio * 0.8, 0.75)
+            and desktop_ratio <= 0.65
+            and mobile_ratio >= desktop_ratio + 0.15
         ):
             result["stacking_signals"].append({
                 "identity": key,
