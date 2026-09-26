@@ -169,19 +169,26 @@ def infer_responsive_behavior(viewport_snapshots):
     tablet_groups = group_elements_by_parent(tablet_elements)
     mobile_groups = group_elements_by_parent(mobile_elements)
 
-    all_paths = set(desktop_path_map) | set(mobile_path_map)
-    for path in all_paths:
-        d_item = desktop_path_map.get(path)
-        m_item = mobile_path_map.get(path)
-        d_visible = bool(d_item and d_item.get("visible", True))
-        m_visible = bool(m_item and m_item.get("visible", True))
-        if d_visible != m_visible:
+    visibility_maps = [
+        {item["domPath"]: item for item in design.get("visibilityElements", design.get("elements", []))
+         if item.get("domPath")}
+        for design in (desktop, tablet, mobile)
+    ]
+    # An omitted node can be outside the sample, not necessarily hidden.
+    all_paths = set().union(*(set(items) for items in visibility_maps))
+    for path in sorted(all_paths):
+        items = [mapping.get(path) for mapping in visibility_maps]
+        states = [item.get("visible") if item is not None else None for item in items]
+        known_states = {state for state in states if isinstance(state, bool)}
+        if len(known_states) > 1:
             result["visibility_changes"].append({
                 "path": path,
-                "desktop_visible": d_visible,
-                "mobile_visible": m_visible,
-                "desktop_present": d_item is not None,
-                "mobile_present": m_item is not None,
+                "desktop_visible": states[0],
+                "tablet_visible": states[1],
+                "mobile_visible": states[2],
+                "desktop_present": items[0] is not None,
+                "tablet_present": items[1] is not None,
+                "mobile_present": items[2] is not None,
             })
 
     for parent_key in set(desktop_groups) & set(mobile_groups):
@@ -251,6 +258,7 @@ def infer_responsive_behavior(viewport_snapshots):
     result["wrapped_elements"] = result["wrapped_elements"][:30]
     result["stacking_signals"] = result["stacking_signals"][:30]
     result["row_to_column_groups"] = result["row_to_column_groups"][:30]
+    result["visibility_changes"] = result["visibility_changes"][:30]
     return result
 
 
