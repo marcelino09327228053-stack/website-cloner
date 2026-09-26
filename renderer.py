@@ -19,6 +19,20 @@ def public_host(url):
     return True
 
 
+VIEWPORTS = {
+    "desktop": {"width":1440, "height":1000},
+    "tablet": {"width":768, "height":1024},
+    "mobile": {"width":390, "height":844},
+}
+
+
+async def render_multi_viewport(url):
+    results = {}
+    for name, viewport in VIEWPORTS.items():
+        results[name] = await render_page(url, viewport)
+    return results
+
+
 async def render_page(url, viewport=None):
     if not public_host(url):
         raise ValueError("Only public website URLs are allowed")
