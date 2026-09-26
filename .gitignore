@@ -14,3 +14,5 @@ projects.json
 ({text
 .wrap{position
 0
+launcher-server.log
+launcher-server-error.log

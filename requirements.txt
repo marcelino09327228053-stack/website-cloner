@@ -3,4 +3,4 @@ uvicorn
 httpx
 beautifulsoup4
 lxml
-playwright\n
+playwright

@@ -1,12 +1,11 @@
-@echo off
-cd /d "I:\website cloner"
-title Website Reference Analyzer
-if exist "C:\Program Files\Google\Chrome\Application\chrome.exe" (
-  start "" "C:\Program Files\Google\Chrome\Application\chrome.exe" "http://127.0.0.1:8010"
-) else if exist "C:\Program Files (x86)\Google\Chrome\Application\chrome.exe" (
-  start "" "C:\Program Files (x86)\Google\Chrome\Application\chrome.exe" "http://127.0.0.1:8010"
-) else (
-  start "" chrome "http://127.0.0.1:8010"
-)
-python -m uvicorn main:app --host 127.0.0.1 --port 8010
-pause
+@echo off
+cd /d "%~dp0"
+title Website Cloner
+if not exist "%~dp0.venv\Scripts\python.exe" (
+  echo Project environment missing. Create .venv and install requirements.txt first.
+  pause
+  exit /b 1
+)
+start "" "http://127.0.0.1:8010"
+"%~dp0.venv\Scripts\python.exe" -m uvicorn main:app --host 127.0.0.1 --port 8010
+pause

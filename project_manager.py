@@ -1,9 +1,37 @@
 from pathlib import Path
 from datetime import datetime
 import json
+import subprocess
+import sys
 
 BASE = Path(__file__).resolve().parent
 REGISTRY = BASE / "projects.json"
+
+
+def choose_project_folder():
+    # A separate process keeps the native dialog on its own main UI thread.
+    script = '''import tkinter as tk
+from tkinter import filedialog
+import json
+root=tk.Tk()
+root.withdraw()
+root.attributes('-topmost', True)
+folder=filedialog.askdirectory(title='Open project folder', parent=root)
+root.destroy()
+print(json.dumps(folder))
+'''
+    result = subprocess.run([sys.executable, "-c", script], capture_output=True,
+                            text=True, check=True)
+    folder = json.loads(result.stdout.strip())
+    if not folder:
+        return None
+    path = Path(folder).resolve()
+    name = path.name
+    metadata = path / "project.json"
+    if metadata.exists():
+        name = json.loads(metadata.read_text(encoding="utf-8")).get("display_name") or name
+    register_project(path, name)
+    return {"project_name": name, "project_path": str(path)}
 
 def safe_folder_name(value):
     value = (value or "New Website").strip()
