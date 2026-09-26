@@ -1,7 +1,7 @@
 from pathlib import Path
 import hashlib
 from fastapi import FastAPI, HTTPException
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from analyzer import analyze_url
@@ -14,6 +14,14 @@ GENERATED.mkdir(exist_ok=True)
 app=FastAPI(title="Website Reference Analyzer",version="0.1.0")
 app.mount("/static",StaticFiles(directory=BASE/"static"),name="static")
 app.mount("/generated",StaticFiles(directory=GENERATED,html=True),name="generated")
+
+
+@app.middleware("http")
+async def prevent_stale_app(request, call_next):
+    response = await call_next(request)
+    if request.url.path == "/" or request.url.path.startswith(("/static/", "/api/preview/")):
+        response.headers["Cache-Control"] = "no-store"
+    return response
 
 class AnalyzeRequest(BaseModel):
     url:str
@@ -29,7 +37,11 @@ class CreateProjectRequest(BaseModel):
 
 @app.get("/")
 def home():
-    return FileResponse(BASE/"static"/"index.html")
+    html = (BASE/"static"/"index.html").read_text(encoding="utf-8")
+    for name in ("app.js", "style.css"):
+        version = hashlib.sha256((BASE/"static"/name).read_bytes()).hexdigest()[:16]
+        html = html.replace(f'/static/{name}', f'/static/{name}?v={version}')
+    return HTMLResponse(html)
 
 @app.get("/api/projects")
 def projects():

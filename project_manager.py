@@ -29,7 +29,12 @@ print(json.dumps(folder))
     name = path.name
     metadata = path / "project.json"
     if metadata.exists():
-        name = json.loads(metadata.read_text(encoding="utf-8")).get("display_name") or name
+        try:
+            saved = json.loads(metadata.read_text(encoding="utf-8"))
+            if isinstance(saved, dict):
+                name = saved.get("display_name") or name
+        except (ValueError, OSError):
+            pass  # An unrelated or damaged metadata file must not block opening a folder.
     register_project(path, name)
     return {"project_name": name, "project_path": str(path)}
 

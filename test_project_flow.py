@@ -1,4 +1,5 @@
 import json
+import re
 import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -11,6 +12,30 @@ import project_manager
 
 
 class ProjectFlowTests(unittest.IsolatedAsyncioTestCase):
+    async def test_html_always_requests_current_assets(self):
+        client = TestClient(main.app)
+        response = client.get('/')
+        self.assertEqual(response.headers['cache-control'], 'no-store')
+        assets = re.findall(r'/static/[^" ]+\?v=[a-f0-9]+', response.text)
+        self.assertEqual(len(assets), 2)
+        for asset in assets:
+            fetched = client.get(asset)
+            self.assertEqual(fetched.status_code, 200)
+            self.assertEqual(fetched.headers['cache-control'], 'no-store')
+        self.assertIn('openFolder', client.get(next(a for a in assets if 'app.js' in a)).text)
+
+    async def test_actual_picker_processing_preserves_folder_and_handles_bad_metadata(self):
+        with TemporaryDirectory() as folder:
+            root = Path(folder)
+            (root/'project.json').write_text('not valid JSON')
+            with patch.object(project_manager, 'REGISTRY', root/'registry.json'), \
+                 patch.object(project_manager.subprocess, 'run') as run:
+                run.return_value.stdout = json.dumps(folder)
+                selected = project_manager.choose_project_folder()
+                self.assertEqual(selected['project_path'], str(root.resolve()))
+                self.assertEqual(selected['project_name'], root.name)
+                self.assertEqual((root/'project.json').read_text(), 'not valid JSON')
+
     async def test_folder_build_and_preview(self):
         with TemporaryDirectory() as folder:
             project = Path(folder, 'My Project'); project.mkdir()
