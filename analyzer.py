@@ -215,7 +215,7 @@ async def analyze_url(url: str):
         "final_url":final_url,
         "status_code":status_code,
         "site":{"title":title,"description":description,"domain":urlparse(final_url).netloc},
-        "blueprint":{"section_order":section_order,"interactions":interactions,"technologies":detect_technologies(soup),"rebuild_plan":rebuild_plan,"rendered_browser":rendered},
+        "blueprint":{"section_order":section_order,"interactions":interactions,"technologies":detect_technologies(soup),"rebuild_plan":rebuild_plan,"rendered_browser":rendered,"responsive_behavior":infer_responsive_behavior(viewport_snapshots)},
         "design": snapshot.get("design",{}) if snapshot else {},
         "viewport_snapshots": viewport_snapshots,
         "structure":{"headings":headings[:80],"sections":sections[:80],"forms":forms[:20],"buttons":buttons[:50]},
