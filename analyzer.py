@@ -33,6 +33,63 @@ def infer_section(tag):
     for name,keywords in SECTION_HINTS.items():
         if any(k in marker or k in heading_text or k in visible_text for k in keywords): return name
     return "generic"
+def infer_responsive_behavior(viewport_snapshots):
+    result = {
+        "available": False,
+        "page_height_growth": {},
+        "wrapped_elements": [],
+        "stacking_signals": [],
+    }
+    desktop = viewport_snapshots.get("desktop", {}).get("design", {})
+    tablet = viewport_snapshots.get("tablet", {}).get("design", {})
+    mobile = viewport_snapshots.get("mobile", {}).get("design", {})
+    if not desktop or not tablet or not mobile:
+        return result
+
+    result["available"] = True
+    desktop_elements = desktop.get("elements", [])
+    tablet_elements = tablet.get("elements", [])
+    mobile_elements = mobile.get("elements", [])
+
+    def page_height(elements):
+        return max((item.get("y", 0) + item.get("height", 0) for item in elements), default=0)
+
+    desktop_height = page_height(desktop_elements)
+    tablet_height = page_height(tablet_elements)
+    mobile_height = page_height(mobile_elements)
+    if desktop_height:
+        result["page_height_growth"] = {
+            "tablet_vs_desktop": round(tablet_height / desktop_height, 2),
+            "mobile_vs_desktop": round(mobile_height / desktop_height, 2),
+        }
+
+    count = min(len(desktop_elements), len(tablet_elements), len(mobile_elements))
+    for index in range(count):
+        d = desktop_elements[index]
+        t = tablet_elements[index]
+        m = mobile_elements[index]
+        d_height = max(d.get("height", 0), 1)
+        if m.get("height", 0) >= d_height * 1.5:
+            result["wrapped_elements"].append({
+                "index": index,
+                "tag": d.get("tag"),
+                "desktop_height": d.get("height"),
+                "mobile_height": m.get("height"),
+            })
+        if d.get("width", 0) > 0 and m.get("width", 0) < d.get("width", 0) * 0.6:
+            result["stacking_signals"].append({
+                "index": index,
+                "tag": d.get("tag"),
+                "desktop_width": d.get("width"),
+                "tablet_width": t.get("width"),
+                "mobile_width": m.get("width"),
+            })
+
+    result["wrapped_elements"] = result["wrapped_elements"][:30]
+    result["stacking_signals"] = result["stacking_signals"][:30]
+    return result
+
+
 def detect_technologies(soup):
     parts=[]
     parts.extend(x.get("src","") for x in soup.find_all("script"))
