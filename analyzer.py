@@ -405,13 +405,17 @@ async def analyze_url(url: str):
         rebuild_plan.append("Rebuild form flows with new backend handling and validation appropriate to the client project.")
     if detect_technologies(soup):
         rebuild_plan.append("Detected frontend hints: "+", ".join(detect_technologies(soup))+". Use only if suitable for the new project.")
+    media_evidence = {
+        "video_count": len(soup.find_all("video")) + sum("/embed/" in frame.get("src", "") for frame in soup.find_all("iframe")),
+        "video_schema_count": sum(len(re.findall(r'"@type"\s*:\s*"VideoObject"', script.get_text())) for script in soup.find_all("script", type="application/ld+json")),
+    }
 
     return {
         "requested_url":url,
         "final_url":final_url,
         "status_code":status_code,
         "site":{"title":title,"description":description,"domain":urlparse(final_url).netloc},
-        "blueprint":{"section_order":section_order,"interactions":interactions,"technologies":detect_technologies(soup),"rebuild_plan":rebuild_plan,"rendered_browser":rendered,"responsive_behavior":infer_responsive_behavior(viewport_snapshots)},
+        "blueprint":{"section_order":section_order,"interactions":interactions,"technologies":detect_technologies(soup),"rebuild_plan":rebuild_plan,"rendered_browser":rendered,"media_evidence":media_evidence,"responsive_behavior":infer_responsive_behavior(viewport_snapshots)},
         "design": snapshot.get("design",{}) if snapshot else {},
         "viewport_snapshots": viewport_snapshots,
         "structure":{"headings":headings[:80],"sections":sections[:80],"forms":forms[:20],"buttons":buttons[:50]},

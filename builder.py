@@ -3,6 +3,7 @@ from datetime import datetime
 import re
 import html
 import json
+from media_layout import detect_media_layout, render_media_platform
 BASE = Path(__file__).resolve().parent
 GENERATED = BASE / "generated"
 
@@ -275,6 +276,8 @@ document.addEventListener('keydown',event=>{
 });
 '''
     js += f"matchMedia('(max-width:{navigation_breakpoint}px)').addEventListener('change',closeNavigation);"
+    if detect_media_layout(analysis):
+        html, css, js = render_media_platform(analysis, project_name)
     (project / "index.html").write_text(html, encoding="utf-8")
     (project / "style.css").write_text(css, encoding="utf-8")
     (project / "app.js").write_text(js, encoding="utf-8")
