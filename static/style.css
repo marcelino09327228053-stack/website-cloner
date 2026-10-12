@@ -1039,19 +1039,22 @@ body::after{
   content:"";
   position:fixed;
   z-index:-2;
-  width:70vw;
-  height:70vw;
-  left:-15vw;
-  top:-20vw;
-  border-radius:50%;
+  width:100vw;
+  height:90vw;
+  left:-20vw;
+  top:-22vw;
+  border-radius:46%;
   pointer-events:none;
   background:
-    radial-gradient(circle at 35% 35%,rgba(0,187,255,.34),transparent 34%),
-    radial-gradient(circle at 66% 48%,rgba(75,82,255,.32),transparent 38%),
-    radial-gradient(circle at 52% 72%,rgba(184,45,255,.28),transparent 36%);
-  filter:blur(70px);
-  opacity:.9;
-  animation:ambientLightMove 15s ease-in-out infinite alternate;
+    radial-gradient(circle at 18% 24%,rgba(0,221,255,.38),transparent 27%),
+    radial-gradient(circle at 42% 36%,rgba(28,139,255,.36),transparent 30%),
+    radial-gradient(circle at 66% 48%,rgba(75,82,255,.36),transparent 30%),
+    radial-gradient(circle at 78% 26%,rgba(143,55,255,.30),transparent 25%),
+    radial-gradient(circle at 52% 72%,rgba(184,45,255,.32),transparent 29%),
+    radial-gradient(circle at 22% 78%,rgba(21,154,255,.26),transparent 25%);
+  filter:blur(62px);
+  opacity:1;
+  animation:ambientLightMove 10.5s ease-in-out infinite alternate;
 }
 main::before{
   content:"";
