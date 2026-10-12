@@ -4,7 +4,6 @@ let working=false;
 function busy(value){
   working=value;
   $('openFolder').disabled=value;
-  $('projectName').disabled=value||!project;
   $('url').disabled=value;
   $('build').disabled=value||!project;
   document.querySelectorAll('.history-select').forEach(button=>button.disabled=value||button.dataset.available==='false');
