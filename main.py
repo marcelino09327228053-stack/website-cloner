@@ -7,7 +7,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from analyzer import analyze_url
 from builder import build_site
-from project_manager import create_project, load_projects, register_project, choose_project_folder, project_history
+from project_manager import create_project, load_projects, register_project, choose_project_folder, project_history, rename_project, delete_project, path_id, PROJECT_LOCK
 
 BASE=Path(__file__).resolve().parent
 GENERATED=BASE/"generated"
@@ -35,6 +35,30 @@ class BuildRequest(BaseModel):
 class CreateProjectRequest(BaseModel):
     project_name:str
     location:str
+
+class RenameRequest(BaseModel):
+    name: str
+
+class DeleteRequest(BaseModel):
+    mode: str
+    confirmed_path: str
+    confirmed: bool = False
+
+@app.post('/api/projects/{project_id}/rename')
+def rename_saved_project(project_id: str, request: RenameRequest):
+    try:
+        item = rename_project(project_id, request.name)
+        return {'project':item, 'preview_url':'/api/preview/'+item['project_id']+'/index.html'}
+    except (ValueError, OSError) as error:
+        raise HTTPException(status_code=400, detail=str(error)) from error
+
+@app.post('/api/projects/{project_id}/delete')
+def delete_saved_project(project_id: str, request: DeleteRequest):
+    try:
+        delete_project(project_id, request.mode, request.confirmed_path, request.confirmed)
+        return {'removed':True}
+    except (ValueError, OSError) as error:
+        raise HTTPException(status_code=400, detail=str(error)) from error
 
 @app.get("/")
 def home():
@@ -86,7 +110,9 @@ def open_folder():
 
 
 def preview_id(path):
-    return hashlib.sha256(str(Path(path).resolve()).casefold().encode()).hexdigest()[:24]
+    resolved = str(Path(path).resolve()).casefold()
+    entry = next((item for item in project_history() if str(item['project_path']).casefold() == resolved), None)
+    return entry['project_id'] if entry else path_id(path)
 
 
 @app.get("/api/preview/{project_id}/{asset_path:path}")
