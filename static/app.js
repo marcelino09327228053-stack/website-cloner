@@ -90,7 +90,7 @@ async function loadHistory(){
         $('projectTitle').scrollIntoView({behavior:'smooth'});
       };
       actions.append(select);
-      if(item.preview_url){const preview=document.createElement('a');preview.className='button secondary';preview.textContent='Preview';preview.href=item.preview_url;preview.target='_blank';preview.rel='noopener';actions.append(preview);}
+      if(item.preview_url){const preview=document.createElement('a');preview.className='button secondary';preview.innerHTML='<span class="btn-icon">&#128065;</span> Preview';preview.href=item.preview_url;preview.target='_blank';preview.rel='noopener';actions.append(preview);}
       const reveal=document.createElement('button');reveal.textContent='Open Location';reveal.className='secondary';reveal.disabled=!item.available;
       reveal.onclick=async()=>{try{await request('/api/projects/'+item.id+'/reveal',{});$('historyStatus').textContent='Folder opened in File Explorer.';}catch(error){$('historyStatus').textContent=error.message;}};
       actions.append(reveal);row.append(visual,info,actions);$('projectHistory').append(row);
