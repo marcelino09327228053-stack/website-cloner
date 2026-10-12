@@ -1060,21 +1060,23 @@ main::before{
   content:"";
   position:fixed;
   z-index:-1;
-  width:72vw;
-  height:72vw;
-  right:-18vw;
-  bottom:-28vw;
-  border-radius:50%;
+  width:100vw;
+  height:92vw;
+  right:-24vw;
+  bottom:-30vw;
+  border-radius:46%;
   pointer-events:none;
   background:
-    radial-gradient(circle at 18% 28%,rgba(0,225,255,.25),transparent 20%),
-    radial-gradient(circle at 45% 42%,rgba(55,109,255,.34),transparent 32%),
-    radial-gradient(circle at 72% 24%,rgba(92,70,255,.28),transparent 23%),
-    radial-gradient(circle at 62% 65%,rgba(177,45,255,.34),transparent 30%),
-    radial-gradient(circle at 30% 68%,rgba(0,210,255,.27),transparent 27%),
-    radial-gradient(circle at 82% 78%,rgba(219,39,255,.22),transparent 22%);
-  filter:blur(72px);
-  animation:ambientLightMove2 18s ease-in-out infinite alternate;
+    radial-gradient(circle at 12% 20%,rgba(0,235,255,.30),transparent 24%),
+    radial-gradient(circle at 30% 42%,rgba(42,126,255,.36),transparent 28%),
+    radial-gradient(circle at 52% 26%,rgba(92,70,255,.33),transparent 25%),
+    radial-gradient(circle at 70% 48%,rgba(177,45,255,.38),transparent 27%),
+    radial-gradient(circle at 24% 72%,rgba(0,214,255,.30),transparent 24%),
+    radial-gradient(circle at 54% 76%,rgba(64,92,255,.30),transparent 25%),
+    radial-gradient(circle at 84% 72%,rgba(219,39,255,.28),transparent 23%);
+  filter:blur(64px);
+  opacity:1;
+  animation:ambientLightMove2 12.5s ease-in-out infinite alternate;
 }
 main::after{
   content:"";
