@@ -86,7 +86,7 @@ async function loadHistory(){
       select.onclick=()=>{
         if(working)return;
         project={project_name:item.display_name,project_path:item.project_path};
-        document.title='MB Website Cloner';$('folderPath').textContent=item.project_path;
+        document.title='MB Website Cloner';$('folderPath').querySelector('.folder-path-text').textContent=item.project_path;
         $('url').value=item.source_url||'';$('result').hidden=true;busy(false);
         $('status').textContent='Project opened. Use Open Location to edit its files, or Build Website to regenerate.';
         $('projectTitle').scrollIntoView({behavior:'smooth'});
