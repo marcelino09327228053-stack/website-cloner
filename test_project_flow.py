@@ -12,6 +12,36 @@ import project_manager
 
 
 class ProjectFlowTests(unittest.IsolatedAsyncioTestCase):
+    async def test_history_scrolls_inside_single_screen_and_searches(self):
+        client=TestClient(main.app)
+        entries=[{'id':str(i),'display_name':f'Project {i}','project_path':f'I:/Samples/Project {i}',
+                  'available':True,'updated_at':'','source_url':'','preview_url':None} for i in range(12)]
+        async with async_playwright() as pw:
+            browser=await pw.chromium.launch()
+            try:
+                page=await browser.new_page()
+                async def serve(route):
+                    if route.request.url.endswith('/api/projects'):
+                        await route.fulfill(json={'projects':entries})
+                    else:
+                        response=client.get(route.request.url)
+                        await route.fulfill(status=response.status_code,headers=dict(response.headers),body=response.content)
+                await page.route('http://app.test/**',serve)
+                await page.goto('http://app.test/')
+                await page.locator('.history-row').last.wait_for()
+                for width,height in ((1440,900),(1366,768),(390,844)):
+                    await page.set_viewport_size({'width':width,'height':height})
+                    self.assertFalse(await page.evaluate('document.documentElement.scrollHeight>innerHeight'))
+                    self.assertFalse(await page.evaluate('document.documentElement.scrollWidth>innerWidth'))
+                    self.assertTrue(await page.locator('#projectHistory').evaluate('(e)=>e.scrollHeight>e.clientHeight'))
+                await page.locator('#historySearch').fill('Project 11')
+                self.assertEqual(await page.locator('.history-row:visible').count(),1)
+                await page.locator('#historySearch').fill('no such project')
+                self.assertEqual(await page.locator('.history-row:visible').count(),0)
+                self.assertIn('no matches',await page.locator('#historyStatus').inner_text())
+            finally:
+                await browser.close()
+
     async def test_history_discovery_preview_and_reveal(self):
         with TemporaryDirectory() as folder:
             root=Path(folder);old=root/'generated'/'Old Project';old.mkdir(parents=True)

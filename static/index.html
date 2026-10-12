@@ -1,11 +1,11 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Website Cloner</title><link rel="stylesheet" href="/static/style.css"></head>
 <body><main><header><p class="eyebrow">WEBSITE CLONER</p><h1 id="projectTitle">Open a project folder</h1><p>Choose a folder, add your reference URL, and build your website.</p></header>
-<section class="card"><div class="folder-row"><div><h2>Project folder</h2><p id="folderPath">No folder selected</p></div><button id="openFolder" type="button">Open Folder</button></div>
+<div class="app-grid"><div class="workspace-panel"><section class="card"><div class="folder-row"><div><h2>Project folder</h2><p id="folderPath">No folder selected</p></div><button id="openFolder" type="button">Open Folder</button></div>
 <label for="projectName">Project name</label><input id="projectName" placeholder="Select a folder first" disabled>
 <p class="hint">Your website files will be saved directly in the selected folder.</p></section>
 <form id="buildForm" class="card"><label for="url">Reference website</label><div class="url-row"><input id="url" placeholder="https://example.com" required><button id="build" disabled>Build Website</button></div></form>
 <p id="status" role="status" aria-live="polite">Open a folder to get started.</p>
 <section id="result" class="card" hidden><h2 id="resultTitle"></h2><p id="savedPath"></p><a id="preview" class="button" target="_blank" rel="noopener">Open Website</a><details><summary>Analysis details</summary><pre id="analysis"></pre></details></section>
-<section class="card"><div class="folder-row"><div><h2>Project History</h2><p class="hint">Reopen a website or find its files to continue editing.</p></div><button id="refreshHistory" type="button" class="secondary">Refresh</button></div><p id="historyStatus" role="status"></p><div id="projectHistory"></div></section>
-</main><script src="/static/app.js"></script></body></html>
+</div><section class="card history-panel"><div class="folder-row"><div><h2>Project History</h2><p class="hint">Reopen a website or find its files to continue editing.</p></div><button id="refreshHistory" type="button" class="secondary">Refresh</button></div><label class="sr-only" for="historySearch">Search projects</label><input id="historySearch" type="search" placeholder="Search project name or folder…"><p id="historyStatus" role="status"></p><div id="projectHistory"></div></section>
+</div></main><script src="/static/app.js"></script></body></html>

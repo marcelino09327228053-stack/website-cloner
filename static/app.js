@@ -91,8 +91,17 @@ async function loadHistory(){
       reveal.onclick=async()=>{try{await request('/api/projects/'+item.id+'/reveal',{});$('historyStatus').textContent='Folder opened in File Explorer.';}catch(error){$('historyStatus').textContent=error.message;}};
       actions.append(reveal);row.append(info,actions);$('projectHistory').append(row);
     }
-    $('historyStatus').textContent=data.projects.length?data.projects.length+' saved projects':'No projects yet. Your projects will appear here after opening a folder or building a website.';
+    filterHistory();
   }catch(error){$('historyStatus').textContent=error.message;}
 }
+function filterHistory(){
+  const query=$('historySearch').value.trim().toLowerCase();
+  const rows=[...document.querySelectorAll('.history-row')];
+  let count=0;
+  rows.forEach(row=>{const match=row.querySelector('.history-info').textContent.toLowerCase().includes(query);row.hidden=!match;if(match)count++;});
+  $('historyStatus').textContent=rows.length?count+' of '+rows.length+' projects'+(count?'':' — no matches'):'No saved projects yet.';
+  $('projectHistory').scrollTop=0;
+}
+$('historySearch').oninput=filterHistory;
 $('refreshHistory').onclick=loadHistory;
 loadHistory();
