@@ -59,6 +59,20 @@ async function loadHistory(){
     $('projectHistory').replaceChildren();
     for(const item of data.projects){
       const row=document.createElement('article');row.className='history-row';
+      const visual=document.createElement('div');visual.className='history-preview';
+      if(item.preview_url){
+        const frame=document.createElement('iframe');
+        frame.src=item.preview_url;
+        frame.loading='lazy';
+        frame.tabIndex=-1;
+        frame.setAttribute('aria-hidden','true');
+        visual.append(frame);
+      }else{
+        const fallback=document.createElement('div');
+        fallback.className='history-preview-fallback';
+        fallback.textContent='◇';
+        visual.append(fallback);
+      }
       const info=document.createElement('div');info.className='history-info';
       const title=document.createElement('h3');title.textContent=item.display_name;
       const path=document.createElement('p');path.className='history-path';path.textContent=item.project_path;
