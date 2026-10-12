@@ -1173,3 +1173,111 @@ main::after{
     animation:none;
   }
 }
+
+/* Futuristic animated Earth for Reference Website */
+.globe-art{
+  position:relative;
+  display:grid;
+  place-items:center;
+  width:126px;
+  height:126px;
+  filter:drop-shadow(0 0 18px rgba(54,178,255,.42)) drop-shadow(0 0 34px rgba(128,65,255,.28));
+}
+.globe-art::before{
+  content:"";
+  position:absolute;
+  width:112px;
+  height:112px;
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(32,180,255,.22),rgba(94,61,255,.10) 55%,transparent 72%);
+  filter:blur(10px);
+  animation:earthAura 5.5s ease-in-out infinite;
+}
+.globe-art::after{
+  content:"";
+  position:absolute;
+  width:118px;
+  height:118px;
+  border-radius:50%;
+  border:1px solid rgba(101,211,255,.22);
+  box-shadow:0 0 26px rgba(53,189,255,.22),0 0 42px rgba(126,69,255,.16);
+  animation:earthOrbit 14s linear infinite;
+}
+.globe-ring{
+  position:absolute;
+  width:94px;
+  height:94px;
+  border-radius:50%;
+  overflow:hidden;
+  border:1px solid rgba(95,219,255,.88);
+  background:
+    radial-gradient(circle at 30% 24%,rgba(186,247,255,.96) 0 5%,transparent 16%),
+    radial-gradient(circle at 35% 28%,#2dc8ff 0%,#276cff 33%,#1738a8 61%,#071846 100%);
+  box-shadow:
+    0 0 8px rgba(63,228,255,.78),
+    0 0 25px rgba(42,147,255,.62),
+    0 0 48px rgba(109,62,255,.46),
+    inset -18px -12px 28px rgba(2,7,35,.58),
+    inset 12px 8px 20px rgba(114,220,255,.12);
+  animation:earthFloat 7s ease-in-out infinite;
+}
+.globe-ring::before{
+  content:"";
+  position:absolute;
+  inset:-4px;
+  border-radius:50%;
+  background:
+    radial-gradient(ellipse at 24% 30%,rgba(66,255,170,.98) 0 8%,transparent 9%),
+    radial-gradient(ellipse at 36% 35%,rgba(58,236,157,.95) 0 11%,transparent 12%),
+    radial-gradient(ellipse at 44% 48%,rgba(74,255,177,.91) 0 8%,transparent 9%),
+    radial-gradient(ellipse at 56% 34%,rgba(73,242,171,.90) 0 7%,transparent 8%),
+    radial-gradient(ellipse at 61% 52%,rgba(59,231,150,.92) 0 10%,transparent 11%),
+    radial-gradient(ellipse at 72% 65%,rgba(78,255,184,.86) 0 7%,transparent 8%),
+    radial-gradient(ellipse at 32% 68%,rgba(62,236,160,.85) 0 8%,transparent 9%);
+  filter:drop-shadow(0 0 5px rgba(73,255,183,.45));
+  animation:earthContinents 18s linear infinite;
+}
+.globe-ring::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:50%;
+  background:
+    repeating-linear-gradient(0deg,transparent 0 11px,rgba(179,232,255,.15) 11px 12px),
+    repeating-linear-gradient(90deg,transparent 0 13px,rgba(179,232,255,.11) 13px 14px),
+    linear-gradient(118deg,transparent 0 34%,rgba(255,255,255,.20) 46%,transparent 57%);
+  opacity:.54;
+  mix-blend-mode:screen;
+}
+.globe-core{
+  position:absolute;
+  width:104px;
+  height:30px;
+  border-radius:50%;
+  border:1px solid rgba(116,208,255,.28);
+  background:transparent;
+  box-shadow:0 0 16px rgba(51,183,255,.14);
+  transform:rotate(-18deg);
+  animation:earthRing 11s linear infinite;
+}
+@keyframes earthFloat{
+  0%,100%{transform:translateY(0) rotate(-2deg)}
+  50%{transform:translateY(-5px) rotate(2deg)}
+}
+@keyframes earthContinents{
+  0%{transform:translateX(-5px) rotate(0deg)}
+  50%{transform:translateX(5px) rotate(180deg)}
+  100%{transform:translateX(-5px) rotate(360deg)}
+}
+@keyframes earthAura{
+  0%,100%{transform:scale(.94);opacity:.65}
+  50%{transform:scale(1.12);opacity:1}
+}
+@keyframes earthOrbit{
+  from{transform:rotate(0deg)}
+  to{transform:rotate(360deg)}
+}
+@keyframes earthRing{
+  from{transform:rotate(-18deg)}
+  to{transform:rotate(342deg)}
+}
