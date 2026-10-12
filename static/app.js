@@ -80,7 +80,7 @@ async function loadHistory(){
       date.textContent=!item.available?'Folder missing or moved':item.updated_at&&!Number.isNaN(parsed.valueOf())?'Last saved: '+parsed.toLocaleString():item.has_preview?'Saved website':'Ready to build';
       info.append(title,path,date);
       const actions=document.createElement('div');actions.className='history-actions';
-      const select=document.createElement('button');select.textContent='Open Project';select.className='secondary history-select';select.dataset.available=String(item.available);select.disabled=working||!item.available;
+      const select=document.createElement('button');select.innerHTML='<span class="btn-icon">&#9654;</span> Open Project';select.className='secondary history-select';select.dataset.available=String(item.available);select.disabled=working||!item.available;
       select.onclick=()=>{
         if(working)return;
         project={project_name:item.display_name,project_path:item.project_path};
