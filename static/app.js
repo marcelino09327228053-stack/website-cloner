@@ -78,7 +78,9 @@ async function loadHistory(){
       const path=document.createElement('p');path.className='history-path';path.textContent=item.project_path;
       const date=document.createElement('small');const parsed=new Date(item.updated_at);
       date.textContent=!item.available?'Folder missing or moved':item.updated_at&&!Number.isNaN(parsed.valueOf())?'Last saved: '+parsed.toLocaleString():item.has_preview?'Saved website':'Ready to build';
-      info.append(title,path,date);
+      const badge=document.createElement('span');badge.className='project-status '+(!item.available?'missing':item.has_preview?'saved':'ready');
+      badge.textContent=!item.available?'Missing':item.has_preview?'Saved':'Ready';
+      info.append(title,path,date,badge);
       const actions=document.createElement('div');actions.className='history-actions';
       const select=document.createElement('button');select.innerHTML='<span class="btn-icon">&#9654;</span> Open Project';select.className='secondary history-select';select.dataset.available=String(item.available);select.disabled=working||!item.available;
       select.onclick=()=>{
