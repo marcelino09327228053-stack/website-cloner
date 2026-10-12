@@ -21,7 +21,7 @@ $('openFolder').onclick=async()=>{
     if(data.project){
       project=data.project;
       document.title='MB Website Cloner';
-      $('folderPath').textContent=project.project_path;
+      $('folderPath').querySelector('.folder-path-text').textContent=project.project_path;
       $('result').hidden=true;
       $('status').textContent='Project folder ready. Enter the reference website.';
       loadHistory();
