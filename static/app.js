@@ -22,8 +22,7 @@ $('openFolder').onclick=async()=>{
     if(data.project){
       project=data.project;
       $('projectName').value=project.project_name;
-      $('projectTitle').textContent=project.project_name;
-      document.title=project.project_name+' — Website Cloner';
+      document.title='MB Website Cloner';
       $('folderPath').textContent=project.project_path;
       $('result').hidden=true;
       $('status').textContent='Project ready. Enter a reference website.';
