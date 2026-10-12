@@ -15,29 +15,24 @@ async function request(path,body){
   return data;
 }
 $('openFolder').onclick=async()=>{
-  busy(true);$('status').textContent='Choose a project folder in the folder dialog…';
+  busy(true);$('status').textContent='Choose a destination, then create or select your project folder…';
   try{
     const data=await request('/api/projects/open-folder',{});
     if(data.project){
       project=data.project;
-      $('projectName').value=project.project_name;
       document.title='MB Website Cloner';
       $('folderPath').textContent=project.project_path;
       $('result').hidden=true;
-      $('status').textContent='Project ready. Enter a reference website.';
+      $('status').textContent='Project folder ready. Enter the reference website.';
       loadHistory();
-    }else $('status').textContent=project?'Folder selection cancelled. Current project kept.':'No folder selected.';
+    }else $('status').textContent=project?'Folder selection cancelled. Current project kept.':'No project folder selected.';
   }catch(error){$('status').textContent=error.message;}finally{busy(false);}
-};
-$('projectName').oninput=()=>{
-  document.title='MB Website Cloner';
-  $('result').hidden=true;
 };
 $('buildForm').onsubmit=async event=>{
   event.preventDefault();
   if(!project)return;
-  const name=$('projectName').value.trim(),url=$('url').value.trim();
-  if(!name||!url){$('status').textContent='Enter a project name and reference URL.';return;}
+  const name=project.project_name,url=$('url').value.trim();
+  if(!url){$('status').textContent='Enter a reference website URL.';return;}
   busy(true);$('result').hidden=true;
   $('status').textContent='Analyzing desktop, tablet, and mobile layouts. This may take a minute…';
   try{
