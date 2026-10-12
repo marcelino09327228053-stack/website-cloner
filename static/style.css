@@ -1057,18 +1057,41 @@ main::before{
   content:"";
   position:fixed;
   z-index:-1;
-  width:58vw;
-  height:58vw;
-  right:-14vw;
-  bottom:-24vw;
+  width:72vw;
+  height:72vw;
+  right:-18vw;
+  bottom:-28vw;
   border-radius:50%;
   pointer-events:none;
   background:
-    radial-gradient(circle at 45% 42%,rgba(55,109,255,.28),transparent 38%),
-    radial-gradient(circle at 62% 65%,rgba(155,48,255,.30),transparent 36%),
-    radial-gradient(circle at 30% 68%,rgba(0,210,255,.20),transparent 34%);
-  filter:blur(80px);
+    radial-gradient(circle at 18% 28%,rgba(0,225,255,.25),transparent 20%),
+    radial-gradient(circle at 45% 42%,rgba(55,109,255,.34),transparent 32%),
+    radial-gradient(circle at 72% 24%,rgba(92,70,255,.28),transparent 23%),
+    radial-gradient(circle at 62% 65%,rgba(177,45,255,.34),transparent 30%),
+    radial-gradient(circle at 30% 68%,rgba(0,210,255,.27),transparent 27%),
+    radial-gradient(circle at 82% 78%,rgba(219,39,255,.22),transparent 22%);
+  filter:blur(72px);
   animation:ambientLightMove2 18s ease-in-out infinite alternate;
+}
+main::after{
+  content:"";
+  position:fixed;
+  z-index:-1;
+  width:62vw;
+  height:48vw;
+  left:18vw;
+  top:12vh;
+  border-radius:46%;
+  pointer-events:none;
+  background:
+    radial-gradient(circle at 12% 42%,rgba(0,198,255,.22),transparent 18%),
+    radial-gradient(circle at 34% 18%,rgba(60,99,255,.25),transparent 19%),
+    radial-gradient(circle at 53% 62%,rgba(118,61,255,.24),transparent 21%),
+    radial-gradient(circle at 73% 31%,rgba(192,42,255,.22),transparent 18%),
+    radial-gradient(circle at 88% 72%,rgba(30,170,255,.20),transparent 18%);
+  filter:blur(62px);
+  opacity:.88;
+  animation:ambientLightMove 22s ease-in-out infinite alternate-reverse;
 }
 
 .card,
