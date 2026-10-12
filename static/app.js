@@ -31,9 +31,7 @@ $('openFolder').onclick=async()=>{
   }catch(error){$('status').textContent=error.message;}finally{busy(false);}
 };
 $('projectName').oninput=()=>{
-  const name=$('projectName').value.trim();
-  $('projectTitle').textContent=name||project.project_name;
-  document.title=(name||project.project_name)+' — Website Cloner';
+  document.title='MB Website Cloner';
   $('result').hidden=true;
 };
 $('buildForm').onsubmit=async event=>{
