@@ -1,10 +1,13 @@
 const $=id=>document.getElementById(id);
 let project=null;
+let working=false;
 function busy(value){
+  working=value;
   $('openFolder').disabled=value;
   $('projectName').disabled=value||!project;
   $('url').disabled=value;
   $('build').disabled=value||!project;
+  document.querySelectorAll('.history-select').forEach(button=>button.disabled=value||button.dataset.available==='false');
 }
 async function request(path,body){
   const response=await fetch(path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
@@ -24,6 +27,7 @@ $('openFolder').onclick=async()=>{
       $('folderPath').textContent=project.project_path;
       $('result').hidden=true;
       $('status').textContent='Project ready. Enter a reference website.';
+      loadHistory();
     }else $('status').textContent=project?'Folder selection cancelled. Current project kept.':'No folder selected.';
   }catch(error){$('status').textContent=error.message;}finally{busy(false);}
 };
@@ -50,6 +54,45 @@ $('buildForm').onsubmit=async event=>{
     $('preview').href=result.preview_url;
     $('analysis').textContent=JSON.stringify(analysis,null,2);
     $('result').hidden=false;
+    loadHistory();
     $('status').textContent=analysis.blueprint?.rendered_browser?'Website saved. Open it below.':'Website saved using basic analysis; browser rendering was unavailable.';
   }catch(error){$('status').textContent=error.message;}finally{busy(false);}
 };
+
+async function loadHistory(){
+  $('historyStatus').textContent='Loading projects…';
+  try{
+    const response=await fetch('/api/projects',{cache:'no-store'});
+    if(!response.ok)throw Error('Could not load project history.');
+    const data=await response.json();
+    $('projectHistory').replaceChildren();
+    for(const item of data.projects){
+      const row=document.createElement('article');row.className='history-row';
+      const info=document.createElement('div');info.className='history-info';
+      const title=document.createElement('h3');title.textContent=item.display_name;
+      const path=document.createElement('p');path.className='history-path';path.textContent=item.project_path;
+      const date=document.createElement('small');const parsed=new Date(item.updated_at);
+      date.textContent=!item.available?'Folder missing or moved':item.updated_at&&!Number.isNaN(parsed.valueOf())?'Last saved: '+parsed.toLocaleString():item.has_preview?'Saved website':'Ready to build';
+      info.append(title,path,date);
+      const actions=document.createElement('div');actions.className='history-actions';
+      const select=document.createElement('button');select.textContent='Open Project';select.className='secondary history-select';select.dataset.available=String(item.available);select.disabled=working||!item.available;
+      select.onclick=()=>{
+        if(working)return;
+        project={project_name:item.display_name,project_path:item.project_path};
+        $('projectName').value=item.display_name;$('projectTitle').textContent=item.display_name;
+        document.title=item.display_name+' — Website Cloner';$('folderPath').textContent=item.project_path;
+        $('url').value=item.source_url||'';$('result').hidden=true;busy(false);
+        $('status').textContent='Project opened. Use Open Location to edit its files, or Build Website to regenerate.';
+        $('projectTitle').scrollIntoView({behavior:'smooth'});
+      };
+      actions.append(select);
+      if(item.preview_url){const preview=document.createElement('a');preview.className='button secondary';preview.textContent='Preview';preview.href=item.preview_url;preview.target='_blank';preview.rel='noopener';actions.append(preview);}
+      const reveal=document.createElement('button');reveal.textContent='Open Location';reveal.className='secondary';reveal.disabled=!item.available;
+      reveal.onclick=async()=>{try{await request('/api/projects/'+item.id+'/reveal',{});$('historyStatus').textContent='Folder opened in File Explorer.';}catch(error){$('historyStatus').textContent=error.message;}};
+      actions.append(reveal);row.append(info,actions);$('projectHistory').append(row);
+    }
+    $('historyStatus').textContent=data.projects.length?data.projects.length+' saved projects':'No projects yet. Your projects will appear here after opening a folder or building a website.';
+  }catch(error){$('historyStatus').textContent=error.message;}
+}
+$('refreshHistory').onclick=loadHistory;
+loadHistory();

@@ -58,6 +58,32 @@ def load_projects():
 def save_projects(projects):
     REGISTRY.write_text(json.dumps(projects, indent=2, ensure_ascii=False), encoding="utf-8")
 
+
+def project_history():
+    """Include registered folders and older builds saved under generated/."""
+    entries = {str(Path(item['project_path']).resolve()).casefold(): dict(item)
+               for item in load_projects() if isinstance(item, dict) and item.get('project_path')}
+    for metadata in [BASE / 'project.json', *(BASE / 'generated').glob('*/project.json')]:
+        if not metadata.is_file():
+            continue
+        key = str(metadata.parent.resolve()).casefold()
+        if key not in entries:
+            entries[key] = {'project_path': str(metadata.parent.resolve())}
+    result = []
+    for item in entries.values():
+        path = Path(item['project_path']).resolve()
+        try:
+            data = json.loads((path / 'project.json').read_text(encoding='utf-8'))
+            if not isinstance(data, dict): data = {}
+        except (OSError, ValueError):
+            data = {}
+        result.append({**item, 'project_path': str(path),
+                       'display_name': data.get('display_name') or item.get('display_name') or path.name,
+                       'updated_at': data.get('updated_at') or item.get('updated_at', ''),
+                       'source_url': data.get('source_url', ''),
+                       'available': path.is_dir(), 'has_preview': (path/'index.html').is_file()})
+    return sorted(result, key=lambda item: str(item['updated_at']), reverse=True)
+
 def register_project(project_path, display_name=None):
     path = Path(project_path).expanduser().resolve()
     now = datetime.now().isoformat(timespec="seconds")

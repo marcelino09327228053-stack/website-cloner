@@ -1,12 +1,13 @@
 from pathlib import Path
 import hashlib
+import os
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from analyzer import analyze_url
 from builder import build_site
-from project_manager import create_project, load_projects, register_project, choose_project_folder
+from project_manager import create_project, load_projects, register_project, choose_project_folder, project_history
 
 BASE=Path(__file__).resolve().parent
 GENERATED=BASE/"generated"
@@ -45,7 +46,21 @@ def home():
 
 @app.get("/api/projects")
 def projects():
-    return {"projects": load_projects()}
+    return {"projects": [{**item, 'id': preview_id(item['project_path']),
+                          'preview_url': '/api/preview/'+preview_id(item['project_path'])+'/index.html' if item['has_preview'] else None}
+                         for item in project_history()]}
+
+
+@app.post('/api/projects/{project_id}/reveal')
+def reveal_project(project_id: str):
+    entry = next((item for item in project_history() if preview_id(item['project_path']) == project_id), None)
+    if not entry or not entry['available']:
+        raise HTTPException(status_code=404, detail='Project folder is missing or has been moved. Use Open Folder to locate it.')
+    try:
+        os.startfile(entry['project_path'])
+    except OSError as error:
+        raise HTTPException(status_code=400, detail=str(error)) from error
+    return {'opened': True}
 
 @app.post("/api/projects/create")
 def create_new_project(request:CreateProjectRequest):
@@ -76,7 +91,7 @@ def preview_id(path):
 
 @app.get("/api/preview/{project_id}/{asset_path:path}")
 def preview_asset(project_id: str, asset_path: str):
-    entry = next((item for item in load_projects() if preview_id(item["project_path"]) == project_id), None)
+    entry = next((item for item in project_history() if preview_id(item["project_path"]) == project_id), None)
     if not entry:
         raise HTTPException(status_code=404, detail="Project not found")
     project = Path(entry["project_path"]).resolve()
