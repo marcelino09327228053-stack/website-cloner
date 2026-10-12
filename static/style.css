@@ -1028,3 +1028,125 @@ main{
   }
   .history-preview{width:100%;height:110px}
 }
+
+/* Animated glass + moving neon light */
+body{
+  position:relative;
+  isolation:isolate;
+  background:#050914;
+}
+body::after{
+  content:"";
+  position:fixed;
+  z-index:-2;
+  width:70vw;
+  height:70vw;
+  left:-15vw;
+  top:-20vw;
+  border-radius:50%;
+  pointer-events:none;
+  background:
+    radial-gradient(circle at 35% 35%,rgba(0,187,255,.34),transparent 34%),
+    radial-gradient(circle at 66% 48%,rgba(75,82,255,.32),transparent 38%),
+    radial-gradient(circle at 52% 72%,rgba(184,45,255,.28),transparent 36%);
+  filter:blur(70px);
+  opacity:.9;
+  animation:ambientLightMove 15s ease-in-out infinite alternate;
+}
+main::before{
+  content:"";
+  position:fixed;
+  z-index:-1;
+  width:58vw;
+  height:58vw;
+  right:-14vw;
+  bottom:-24vw;
+  border-radius:50%;
+  pointer-events:none;
+  background:
+    radial-gradient(circle at 45% 42%,rgba(55,109,255,.28),transparent 38%),
+    radial-gradient(circle at 62% 65%,rgba(155,48,255,.30),transparent 36%),
+    radial-gradient(circle at 30% 68%,rgba(0,210,255,.20),transparent 34%);
+  filter:blur(80px);
+  animation:ambientLightMove2 18s ease-in-out infinite alternate;
+}
+
+.card,
+.history-panel{
+  background:linear-gradient(
+    145deg,
+    rgba(12,25,48,.48),
+    rgba(16,20,48,.34)
+  )!important;
+  backdrop-filter:blur(20px) saturate(145%);
+  -webkit-backdrop-filter:blur(20px) saturate(145%);
+  border-color:rgba(102,135,255,.48);
+}
+
+.project-card{
+  background:
+    linear-gradient(145deg,rgba(5,28,52,.45),rgba(12,19,46,.30))!important;
+}
+.reference-card{
+  background:
+    linear-gradient(145deg,rgba(12,21,54,.42),rgba(32,15,57,.28))!important;
+}
+.result-card{
+  background:
+    linear-gradient(145deg,rgba(5,37,42,.40),rgba(9,26,44,.28))!important;
+}
+.history-panel{
+  background:
+    linear-gradient(145deg,rgba(8,24,48,.44),rgba(18,17,50,.30))!important;
+}
+
+.history-row{
+  background:
+    linear-gradient(145deg,rgba(6,20,42,.46),rgba(18,18,48,.34))!important;
+  backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);
+}
+
+.path-field,
+.url-control input,
+.search-wrap input{
+  background:rgba(2,10,26,.42)!important;
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+}
+
+@keyframes ambientLightMove{
+  0%{
+    transform:translate3d(0,0,0) scale(1);
+  }
+  35%{
+    transform:translate3d(24vw,10vh,0) scale(1.12);
+  }
+  70%{
+    transform:translate3d(46vw,28vh,0) scale(.96);
+  }
+  100%{
+    transform:translate3d(20vw,52vh,0) scale(1.10);
+  }
+}
+@keyframes ambientLightMove2{
+  0%{
+    transform:translate3d(0,0,0) scale(1);
+  }
+  40%{
+    transform:translate3d(-28vw,-18vh,0) scale(1.12);
+  }
+  75%{
+    transform:translate3d(-48vw,-42vh,0) scale(.95);
+  }
+  100%{
+    transform:translate3d(-18vw,-60vh,0) scale(1.08);
+  }
+}
+
+@media(prefers-reduced-motion:reduce){
+  body::after,
+  main::before{
+    animation:none;
+  }
+}
