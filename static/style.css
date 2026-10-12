@@ -149,6 +149,25 @@ input:focus{
   padding:7px 10px;
   font-size:11px;
 }
+.btn-icon{
+  display:inline-grid;
+  place-items:center;
+  width:20px;
+  height:20px;
+  margin-right:6px;
+  border-radius:7px;
+  color:#dfe7ff;
+  background:linear-gradient(145deg,rgba(64,103,255,.28),rgba(139,78,255,.26));
+  border:1px solid rgba(120,137,255,.62);
+  box-shadow:0 0 12px rgba(88,94,255,.5),inset 0 0 8px rgba(130,96,255,.16);
+  text-shadow:0 0 8px rgba(166,177,255,.9);
+  vertical-align:middle;
+}
+.history-actions button,.history-actions .button{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+}
 @media(max-width:900px){
   .history-row{grid-template-columns:92px minmax(0,1fr)}
   .history-preview{width:92px;height:66px}
