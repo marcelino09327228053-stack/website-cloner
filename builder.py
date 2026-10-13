@@ -8,6 +8,7 @@ from design_layout import render_design_studio
 from shorts_layout import render_short_platform
 from social_layout import render_social_platform
 from cinema_layout import render_cinema_platform
+from business_layout import render_business
 from template_selection import reference_template
 BASE = Path(__file__).resolve().parent
 GENERATED = BASE / "generated"
@@ -283,7 +284,9 @@ document.addEventListener('keydown',event=>{
     js += f"matchMedia('(max-width:{navigation_breakpoint}px)').addEventListener('change',closeNavigation);"
     studio_id = None
     layout_kind = bp.get("layout_kind") or reference_template(analysis.get("requested_url") or analysis.get("final_url"))
-    if layout_kind == "design_studio":
+    if layout_kind == "business_brief":
+        html, css, js = render_business(analysis, project_name)
+    elif layout_kind == "design_studio":
         html, css, js, studio_id = render_design_studio(project)
     elif layout_kind == "cinema":
         html, css, js, studio_id = render_cinema_platform(project)
@@ -308,6 +311,9 @@ document.addEventListener('keydown',event=>{
         "files": ["index.html", "style.css", "app.js", "analysis.json"],
         "updated_at": datetime.now().isoformat(timespec="seconds")
     }
+    if layout_kind == "business_brief":
+        metadata["description"] = bp["brief"]["description"]
+        metadata["template_kind"] = layout_kind
     metadata_file = project / "project.json"
     if metadata_file.exists():
         try:

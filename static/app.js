@@ -1,10 +1,24 @@
 const $=id=>document.getElementById(id);
 let project=null;
 let working=false;
+let buildMode='reference';
+function setBuildMode(mode){
+  if(working)return;
+  buildMode=mode;
+  const custom=mode==='description';
+  $('descriptionFields').hidden=!custom;$('urlControl').hidden=custom;$('urlLabel').hidden=custom;
+  $('description').required=custom;$('url').required=!custom;
+  $('referenceMode').setAttribute('aria-pressed',String(!custom));$('descriptionMode').setAttribute('aria-pressed',String(custom));
+  $('buildModeTitle').textContent=custom?'Build your own website':'Reference website';
+  $('result').hidden=true;
+}
+$('referenceMode').onclick=()=>setBuildMode('reference');
+$('descriptionMode').onclick=()=>setBuildMode('description');
 function busy(value){
   working=value;
   $('openFolder').disabled=value;
   $('url').disabled=value;
+  $('description').disabled=value;$('referenceMode').disabled=value;$('descriptionMode').disabled=value;
   $('build').disabled=value||!project;
   document.querySelectorAll('.history-select,.history-manage').forEach(button=>button.disabled=value||button.dataset.available==='false');
 }
@@ -31,12 +45,12 @@ $('openFolder').onclick=async()=>{
 $('buildForm').onsubmit=async event=>{
   event.preventDefault();
   if(!project)return;
-  const name=project.project_name,url=$('url').value.trim();
-  if(!url){$('status').textContent='Enter a reference website URL.';return;}
+  const name=project.project_name,url=$('url').value.trim(),description=$('description').value.trim();
+  if(buildMode==='reference'&&!url){$('status').textContent='Enter a reference website URL.';return;}
   busy(true);$('result').hidden=true;
-  $('status').textContent='Analyzing desktop, tablet, and mobile layouts. This may take a minute…';
+  $('status').textContent=buildMode==='description'?'Preparing your business website…':'Analyzing desktop, tablet, and mobile layouts. This may take a minute…';
   try{
-    const analysis=await request('/api/analyze',{url});
+    const analysis=await request(buildMode==='description'?'/api/describe':'/api/analyze',buildMode==='description'?{description}:{url});
     $('status').textContent='Building '+name+'…';
     const result=await request('/api/build',{analysis,project_path:project.project_path,project_name:name});
     project.project_name=name;
@@ -46,7 +60,7 @@ $('buildForm').onsubmit=async event=>{
     $('analysis').textContent=JSON.stringify(analysis,null,2);
     $('result').hidden=false;
     loadHistory();
-    $('status').textContent=analysis.blueprint?.authored_template?'Website saved using the original '+({design_studio:'Design Studio',video_platform:'Frame',short_video:'Loop',social_feed:'Gather',cinema:'Nocturne'}[analysis.blueprint.layout_kind]||'selected')+' template.':analysis.blueprint?.rendered_browser?'Website saved. Open it below.':'Website saved using basic analysis; browser rendering was unavailable.';
+    $('status').textContent=buildMode==='description'?'Website saved from your description. Preview it below.':analysis.blueprint?.authored_template?'Website saved using the original '+({design_studio:'Design Studio',video_platform:'Frame',short_video:'Loop',social_feed:'Gather',cinema:'Nocturne'}[analysis.blueprint.layout_kind]||'selected')+' template.':analysis.blueprint?.rendered_browser?'Website saved. Open it below.':'Website saved using basic analysis; browser rendering was unavailable.';
   }catch(error){$('status').textContent=error.message;}finally{busy(false);}
 };
 
@@ -87,7 +101,7 @@ async function loadHistory(){
         if(working)return;
         project={project_name:item.display_name,project_path:item.project_path};
         document.title='MB Website Cloner';$('folderPath').querySelector('.folder-path-text').textContent=item.project_path;
-        $('url').value=item.source_url||'';$('result').hidden=true;busy(false);
+        $('url').value=item.source_url||'';$('description').value=item.description||'';setBuildMode(item.description?'description':'reference');$('result').hidden=true;busy(false);
         $('status').textContent='Project opened. Use Open Location to edit its files, or Build Website to regenerate.';
         $('projectTitle').scrollIntoView({behavior:'smooth'});
       };

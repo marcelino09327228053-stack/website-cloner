@@ -98,6 +98,7 @@ def project_history():
                        'display_name': data.get('display_name') or item.get('display_name') or path.name,
                        'updated_at': data.get('updated_at') or item.get('updated_at', ''),
                        'source_url': data.get('source_url', ''),
+                       'description': data.get('description', ''),
                        'available': path.is_dir(), 'has_preview': (path/'index.html').is_file()})
     return sorted(result, key=lambda item: str(item['updated_at']), reverse=True)
 

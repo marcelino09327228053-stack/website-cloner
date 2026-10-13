@@ -7,6 +7,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from analyzer import analyze_url
 from builder import build_site
+from business_layout import describe_website
 from template_selection import template_blueprint
 from project_manager import create_project, load_projects, register_project, choose_project_folder, project_history, rename_project, delete_project, path_id, PROJECT_LOCK
 
@@ -24,6 +25,16 @@ async def prevent_stale_app(request, call_next):
     if request.url.path == "/" or request.url.path.startswith(("/static/", "/api/preview/")):
         response.headers["Cache-Control"] = "no-store"
     return response
+
+class DescriptionRequest(BaseModel):
+    description: str
+
+@app.post('/api/describe')
+def describe(request: DescriptionRequest):
+    try:
+        return describe_website(request.description)
+    except ValueError as error:
+        raise HTTPException(status_code=400, detail=str(error)) from error
 
 class AnalyzeRequest(BaseModel):
     url:str

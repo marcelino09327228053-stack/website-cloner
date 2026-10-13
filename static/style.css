@@ -1307,3 +1307,11 @@ main{overflow:clip}
 @media(max-width:760px){.app-grid{grid-template-columns:minmax(0,1fr)}.hero-badge{display:none}.hero h1{font-size:26px}.history-actions{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:760px){html,body{height:100%;overflow:hidden}main{height:100dvh;min-height:0;padding:14px}.hero{min-height:0;margin-bottom:12px}.hero .brand{gap:10px}.hero .brand-mark{width:36px;height:36px;flex:none}.hero p:not(.eyebrow){display:none}.app-grid{min-height:0;grid-template-rows:minmax(0,1fr) minmax(0,1fr)}.workspace-panel{overflow:auto;min-height:0}.history-panel{height:100%;min-height:0;max-height:100%}#projectHistory{min-height:0;overflow:auto}}
 @media(max-width:760px){.app-grid{display:grid;flex:1;overflow:hidden}.workspace-panel{height:100%}.history-panel{overflow:hidden;padding:12px}.history-panel .folder-row{margin-bottom:8px}.history-panel .hint{display:none}}
+
+/* Build from a reference or a local business brief. */
+.build-modes{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 18px}
+.build-modes button{flex:1;padding:10px 12px;background:#112438;border:1px solid #344b67;font-size:12px;white-space:normal}
+.build-modes button[aria-pressed=true]{background:#284b7b;border-color:#619dff}
+#descriptionFields{margin-bottom:18px}
+#description{display:block;width:100%;resize:vertical;min-height:140px;max-height:300px;background:#0b1728;color:#e8f1ff;border:1px solid #35546a;border-radius:9px;padding:14px;font:13px/1.7 Segoe UI,system-ui,sans-serif}
+#descriptionFields .hint{font-size:11px;line-height:1.6}
