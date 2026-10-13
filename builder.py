@@ -5,6 +5,7 @@ import html
 import json
 from media_layout import detect_media_layout, render_media_platform
 from design_layout import render_design_studio
+from shorts_layout import render_short_platform
 from template_selection import reference_template
 BASE = Path(__file__).resolve().parent
 GENERATED = BASE / "generated"
@@ -282,6 +283,8 @@ document.addEventListener('keydown',event=>{
     layout_kind = bp.get("layout_kind") or reference_template(analysis.get("requested_url") or analysis.get("final_url"))
     if layout_kind == "design_studio":
         html, css, js, studio_id = render_design_studio(project)
+    elif layout_kind == "short_video":
+        html, css, js, studio_id = render_short_platform(project)
     elif layout_kind == "video_platform" or detect_media_layout(analysis):
         html, css, js = render_media_platform(analysis, project_name)
     (project / "index.html").write_text(html, encoding="utf-8")
@@ -312,7 +315,7 @@ document.addEventListener('keydown',event=>{
         metadata["created_at"] = metadata["updated_at"]
     if studio_id:
         metadata["project_id"] = studio_id
-        metadata["template_kind"] = "design_studio"
+        metadata["template_kind"] = layout_kind
     metadata_file.write_text(json.dumps(metadata, indent=2, ensure_ascii=False), encoding="utf-8")
     return {"project_name": project.name, "project_path": str(project), "files": metadata["files"] + ["project.json"], "main_file": "index.html"}
 
