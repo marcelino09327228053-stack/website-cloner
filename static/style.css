@@ -1286,3 +1286,24 @@ main::after{
   from{transform:rotate(-18deg)}
   to{transform:rotate(342deg)}
 }
+
+/* Project management controls keep the existing history layout. */
+.history-actions{flex-wrap:wrap;gap:6px}
+.history-actions .history-manage{padding:7px 10px}
+button.danger{color:#ffb4be;border:1px solid #9b4255;background:#391c29}
+button.danger:hover{background:#552335}
+#projectDialog{width:min(480px,calc(100vw - 32px));max-height:90dvh;overflow:auto;border:1px solid #385069;border-radius:18px;background:#101e2c;color:#edf5ff;padding:24px;box-shadow:0 24px 90px #0009}
+#projectDialog::backdrop{background:#030b16b8;backdrop-filter:blur(5px)}
+#projectDialog h2{margin-top:0}
+#dialogPath{overflow-wrap:anywhere;color:#afc2d5;font-size:13px}
+#projectDialog fieldset{border:0;padding:0;margin:20px 0}
+#projectDialog fieldset label{display:flex;align-items:center;gap:10px;margin-top:16px}
+#projectDialog input[type=radio]{width:auto;flex:none;accent-color:#409cff}
+#projectDialog [hidden]{display:none!important}
+#dialogStatus{color:#ffc2ca;overflow-wrap:anywhere}
+.dialog-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:20px}
+/* Contain animated decoration without adding a document scrollbar. */
+main{overflow:clip}
+@media(max-width:760px){.app-grid{grid-template-columns:minmax(0,1fr)}.hero-badge{display:none}.hero h1{font-size:26px}.history-actions{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){html,body{height:100%;overflow:hidden}main{height:100dvh;min-height:0;padding:14px}.hero{min-height:0;margin-bottom:12px}.hero .brand{gap:10px}.hero .brand-mark{width:36px;height:36px;flex:none}.hero p:not(.eyebrow){display:none}.app-grid{min-height:0;grid-template-rows:minmax(0,1fr) minmax(0,1fr)}.workspace-panel{overflow:auto;min-height:0}.history-panel{height:100%;min-height:0;max-height:100%}#projectHistory{min-height:0;overflow:auto}}
+@media(max-width:760px){.app-grid{display:grid;flex:1;overflow:hidden}.workspace-panel{height:100%}.history-panel{overflow:hidden;padding:12px}.history-panel .folder-row{margin-bottom:8px}.history-panel .hint{display:none}}

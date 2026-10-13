@@ -6,4 +6,12 @@
 <p id="status" role="status" aria-live="polite">Open a folder to get started.</p>
 <section id="result" class="card result-card" hidden><div class="success-line"><span>&#10003;</span><strong>Website saved. Open it below.</strong></div><h2 id="resultTitle"></h2><p id="savedPath"></p><a id="preview" class="button" target="_blank" rel="noopener">Open Website &#8599;</a><details><summary>Analysis details</summary><pre id="analysis"></pre></details></section>
 </div><section class="card history-panel"><div class="folder-row"><div class="section-title"><span class="icon">&#9719;</span><div><h2>Project History</h2><p class="hint">Reopen a website or find its files to continue editing.</p></div></div><button id="refreshHistory" type="button" class="secondary"><span class="btn-icon">&#8635;</span> Refresh</button></div><label class="sr-only" for="historySearch">Search projects</label><div class="search-wrap"><span>&#8981;</span><input id="historySearch" type="search" placeholder="Search project name or folder..."></div><p id="historyStatus" role="status"></p><div id="projectHistory"></div></section>
-</div></main><script src="/static/app.js"></script></body></html>
+</div></main>
+<dialog id="projectDialog" aria-labelledby="dialogTitle"><form id="projectActionForm">
+<h2 id="dialogTitle"></h2><strong id="dialogProject"></strong><p id="dialogPath"></p>
+<div id="renameFields"><label for="renameName">New project and folder name</label><input id="renameName" maxlength="100"><p class="hint">Renames the folder and updates the saved project.</p></div>
+<fieldset id="deleteFields"><legend>Choose what to remove</legend>
+<label><input type="radio" name="deleteMode" value="history"> Remove from history only</label><p class="hint">Website files stay in their folder.</p>
+<label><input type="radio" name="deleteMode" value="files"> Delete project folder and files</label><p class="hint">Permanently deletes this folder and its contents.</p></fieldset>
+<p id="dialogStatus" role="alert"></p><div class="dialog-actions"><button id="cancelAction" type="button" class="secondary">Cancel</button><button id="confirmAction" type="submit">Confirm</button></div>
+</form></dialog><script src="/static/app.js"></script></body></html>

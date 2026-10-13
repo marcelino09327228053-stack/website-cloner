@@ -6,7 +6,7 @@ function busy(value){
   $('openFolder').disabled=value;
   $('url').disabled=value;
   $('build').disabled=value||!project;
-  document.querySelectorAll('.history-select').forEach(button=>button.disabled=value||button.dataset.available==='false');
+  document.querySelectorAll('.history-select,.history-manage').forEach(button=>button.disabled=value||button.dataset.available==='false');
 }
 async function request(path,body){
   const response=await fetch(path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
@@ -95,7 +95,17 @@ async function loadHistory(){
       if(item.preview_url){const preview=document.createElement('a');preview.className='button secondary';preview.innerHTML='<span class="btn-icon">&#128065;</span> Preview';preview.href=item.preview_url;preview.target='_blank';preview.rel='noopener';actions.append(preview);}
       const reveal=document.createElement('button');reveal.innerHTML='<span class="btn-icon">&#128193;</span> Open Location';reveal.className='secondary';reveal.disabled=!item.available;
       reveal.onclick=async()=>{try{await request('/api/projects/'+item.id+'/reveal',{});$('historyStatus').textContent='Folder opened in File Explorer.';}catch(error){$('historyStatus').textContent=error.message;}};
-      actions.append(reveal);row.append(visual,info,actions);$('projectHistory').append(row);
+      actions.append(reveal);
+      for(const mode of ['rename','delete']){
+        const button=document.createElement('button');
+        button.textContent=mode==='rename'?'Rename':'Delete';
+        button.className='secondary history-manage'+(mode==='delete'?' danger':'');
+        button.dataset.available=String(mode==='delete'||item.available);
+        button.disabled=working||button.dataset.available==='false';
+        button.onclick=()=>openProjectAction(item,mode);
+        actions.append(button);
+      }
+      row.append(visual,info,actions);$('projectHistory').append(row);
     }
     filterHistory();
   }catch(error){$('historyStatus').textContent=error.message;}
@@ -111,3 +121,46 @@ function filterHistory(){
 $('historySearch').oninput=filterHistory;
 $('refreshHistory').onclick=loadHistory;
 loadHistory();
+
+let action=null,submitting=false;
+function openProjectAction(item,mode){
+  if(working)return;
+  action={item,mode};
+  $('dialogTitle').textContent=mode==='rename'?'Rename project':'Delete project';
+  $('dialogProject').textContent=item.display_name;
+  $('dialogPath').textContent=item.project_path;
+  $('renameFields').hidden=mode!=='rename';$('deleteFields').hidden=mode!=='delete';
+  $('renameName').value=item.display_name;$('renameName').required=mode==='rename';
+  document.querySelectorAll('[name=deleteMode]').forEach(input=>{input.checked=false;input.required=mode==='delete';});
+  $('confirmAction').textContent=mode==='rename'?'Rename project':'Confirm removal';
+  $('confirmAction').className=mode==='delete'?'danger':'';
+  $('dialogStatus').textContent='';$('projectDialog').showModal();
+  if(mode==='rename')$('renameName').select();
+}
+$('cancelAction').onclick=()=>{if(!submitting)$('projectDialog').close();};
+$('projectDialog').addEventListener('cancel',event=>{if(submitting)event.preventDefault();});
+$('projectActionForm').onsubmit=async event=>{
+  event.preventDefault();if(!action||submitting)return;
+  const {item,mode}=action;
+  const selected=document.querySelector('[name=deleteMode]:checked');
+  if(mode==='delete'&&!selected)return;
+  const body=mode==='rename'?{name:$('renameName').value}:{mode:selected.value,confirmed:true,confirmed_path:item.project_path};
+  submitting=true;busy(true);$('confirmAction').disabled=true;$('cancelAction').disabled=true;
+  $('dialogStatus').textContent='Saving changes…';
+  try{
+    const result=await request('/api/projects/'+item.id+'/'+mode,body);
+    if(project?.project_path===item.project_path){
+      if(mode==='rename'){
+        project={project_name:result.project.display_name,project_path:result.project.project_path};
+        $('folderPath').querySelector('.folder-path-text').textContent=project.project_path;
+        $('resultTitle').textContent=project.project_name;$('savedPath').textContent='Saved in '+project.project_path;
+        $('preview').href=result.preview_url;
+      }else{
+        project=null;$('folderPath').querySelector('.folder-path-text').textContent='No project folder selected';$('result').hidden=true;
+      }
+    }
+    await loadHistory();$('projectDialog').close();
+    $('status').textContent=mode==='rename'?'Project renamed to '+result.project.display_name+'.':body.mode==='history'?'Project removed from history. Files kept.':'Project folder and files deleted.';
+  }catch(error){$('dialogStatus').textContent=error.message;}
+  finally{submitting=false;busy(false);$('confirmAction').disabled=false;$('cancelAction').disabled=false;}
+};
