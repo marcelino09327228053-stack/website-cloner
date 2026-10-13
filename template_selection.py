@@ -15,7 +15,7 @@ def reference_template(url):
             return None
     except ValueError:
         return None
-    for domain, template in (('canva.com', 'design_studio'), ('youtube.com', 'video_platform'), ('youtu.be', 'video_platform'), ('tiktok.com', 'short_video')):
+    for domain, template in (('canva.com', 'design_studio'), ('youtube.com', 'video_platform'), ('youtu.be', 'video_platform'), ('tiktok.com', 'short_video'), ('facebook.com', 'social_feed'), ('fb.com', 'social_feed')):
         if host == domain or host.endswith('.' + domain):
             return template
     return None
@@ -25,7 +25,7 @@ def template_blueprint(url):
     kind = reference_template(url)
     if not kind:
         return None
-    name = {'design_studio': 'Design Studio', 'video_platform': 'Frame', 'short_video': 'Loop'}[kind]
+    name = {'design_studio': 'Design Studio', 'video_platform': 'Frame', 'short_video': 'Loop', 'social_feed': 'Gather'}[kind]
     return {
         'requested_url': url.strip(), 'final_url': url.strip(),
         'site': {'title': name},
