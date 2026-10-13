@@ -7,6 +7,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from analyzer import analyze_url
 from builder import build_site
+from template_selection import template_blueprint
 from project_manager import create_project, load_projects, register_project, choose_project_folder, project_history, rename_project, delete_project, path_id, PROJECT_LOCK
 
 BASE=Path(__file__).resolve().parent
@@ -97,6 +98,9 @@ def create_new_project(request:CreateProjectRequest):
 @app.post("/api/analyze")
 async def analyze(request:AnalyzeRequest):
     try:
+        preset = template_blueprint(request.url)
+        if preset:
+            return preset
         return await analyze_url(request.url.strip())
     except Exception as error:
         raise HTTPException(status_code=400,detail=str(error)) from error

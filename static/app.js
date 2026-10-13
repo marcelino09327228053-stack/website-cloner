@@ -46,7 +46,7 @@ $('buildForm').onsubmit=async event=>{
     $('analysis').textContent=JSON.stringify(analysis,null,2);
     $('result').hidden=false;
     loadHistory();
-    $('status').textContent=analysis.blueprint?.rendered_browser?'Website saved. Open it below.':'Website saved using basic analysis; browser rendering was unavailable.';
+    $('status').textContent=analysis.blueprint?.authored_template?'Website saved using the original '+(analysis.blueprint.layout_kind==='design_studio'?'Design Studio':'Frame')+' template.':analysis.blueprint?.rendered_browser?'Website saved. Open it below.':'Website saved using basic analysis; browser rendering was unavailable.';
   }catch(error){$('status').textContent=error.message;}finally{busy(false);}
 };
 
