@@ -4,6 +4,7 @@ import re
 import html
 import json
 from media_layout import detect_media_layout, render_media_platform
+from design_layout import render_design_studio
 BASE = Path(__file__).resolve().parent
 GENERATED = BASE / "generated"
 
@@ -276,7 +277,10 @@ document.addEventListener('keydown',event=>{
 });
 '''
     js += f"matchMedia('(max-width:{navigation_breakpoint}px)').addEventListener('change',closeNavigation);"
-    if detect_media_layout(analysis):
+    studio_id = None
+    if bp.get("layout_kind") == "design_studio":
+        html, css, js, studio_id = render_design_studio(project)
+    elif detect_media_layout(analysis):
         html, css, js = render_media_platform(analysis, project_name)
     (project / "index.html").write_text(html, encoding="utf-8")
     (project / "style.css").write_text(css, encoding="utf-8")
@@ -298,10 +302,15 @@ document.addEventListener('keydown',event=>{
         try:
             previous = json.loads(metadata_file.read_text(encoding="utf-8"))
             metadata["created_at"] = previous.get("created_at") or metadata["updated_at"]
+            if previous.get("project_id"):
+                metadata["project_id"] = previous["project_id"]
         except Exception:
             metadata["created_at"] = metadata["updated_at"]
     else:
         metadata["created_at"] = metadata["updated_at"]
+    if studio_id:
+        metadata["project_id"] = studio_id
+        metadata["template_kind"] = "design_studio"
     metadata_file.write_text(json.dumps(metadata, indent=2, ensure_ascii=False), encoding="utf-8")
     return {"project_name": project.name, "project_path": str(project), "files": metadata["files"] + ["project.json"], "main_file": "index.html"}
 
