@@ -1,6 +1,7 @@
 """Deterministic business briefs. No AI API or runtime generation service."""
 import re
 from html import escape
+from premium_business import render_premium_business
 
 PROFILES = {
  'hotel': ('A place to slow down.', 'Thoughtful stays, made around you.', ['Comfortable rooms', 'Dining & relaxation', 'Plan your stay']),
@@ -26,7 +27,10 @@ def describe_website(description):
 
 
 def render_business(analysis, project_name):
-    brief = analysis['blueprint']['brief'];kind = brief['kind'];headline, subtitle, _ = PROFILES[kind]
+    brief = analysis['blueprint']['brief']
+    if brief['kind'] in ('hotel', 'auto'):
+        return render_premium_business(brief, project_name)
+    kind = brief['kind'];headline, subtitle, _ = PROFILES[kind]
     name = escape(brief['name'] or project_name or 'Your business')
     services = ''.join('<article><span>0'+str(i+1)+'</span><h3>'+escape(s)+'</h3><a href="#contact">Ask about this service ↗</a></article>' for i,s in enumerate(brief['services']))
     contact=''
